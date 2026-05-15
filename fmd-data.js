@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-15T14:01:38.811800
-// Version:   15
+// Generated: 2026-05-15T14:12:57.397291
+// Version:   16
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-15T14:01:38.811800",
-    "version": 15
+    "generated": "2026-05-15T14:12:57.397291",
+    "version": 16
   },
   "weeks": [
     {
@@ -125,10 +125,10 @@ window.FMD_DATA = {
     {
       "code": "LP",
       "name": "Limpopo",
-      "confirmed": 72,
-      "suspected": 63,
-      "pending": 220,
-      "vaccinated": 203576,
+      "confirmed": 62,
+      "suspected": 85,
+      "pending": 253,
+      "vaccinated": 260268,
       "dosesRx": {
         "bio": 100020,
         "dol": 35000,
@@ -316,9 +316,9 @@ window.FMD_DATA = {
     "LP": [
       {
         "name": "Capricorn",
-        "confirmed": 13,
-        "suspected": 9,
-        "vaccinated": 29618,
+        "confirmed": 15,
+        "suspected": 16,
+        "vaccinated": 46180,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -326,14 +326,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 29618,
+        "dosesAdm": 46180,
         "spoilage": 0
       },
       {
         "name": "Mopani",
         "confirmed": 2,
-        "suspected": 1,
-        "vaccinated": 24317,
+        "suspected": 2,
+        "vaccinated": 33615,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -341,14 +341,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 24317,
+        "dosesAdm": 33615,
         "spoilage": 0
       },
       {
         "name": "Sekhukhune",
-        "confirmed": 6,
-        "suspected": 9,
-        "vaccinated": 17648,
+        "confirmed": 8,
+        "suspected": 11,
+        "vaccinated": 24861,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -356,14 +356,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 17648,
+        "dosesAdm": 24861,
         "spoilage": 0
       },
       {
         "name": "Vhembe",
-        "confirmed": 13,
-        "suspected": 18,
-        "vaccinated": 37232,
+        "confirmed": 14,
+        "suspected": 29,
+        "vaccinated": 46539,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -371,14 +371,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 37232,
+        "dosesAdm": 46539,
         "spoilage": 0
       },
       {
         "name": "Waterberg",
-        "confirmed": 16,
+        "confirmed": 23,
         "suspected": 26,
-        "vaccinated": 49532,
+        "vaccinated": 109073,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -386,7 +386,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 49532,
+        "dosesAdm": 109073,
         "spoilage": 0
       }
     ],
@@ -577,9 +577,9 @@ window.FMD_DATA = {
     "WC": [
       {
         "name": "Cape Winelands",
-        "confirmed": 4,
+        "confirmed": 5,
         "suspected": 0,
-        "vaccinated": 28137,
+        "vaccinated": 25019,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -587,7 +587,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 28137,
+        "dosesAdm": 25019,
         "spoilage": 0
       },
       {
@@ -607,9 +607,9 @@ window.FMD_DATA = {
       },
       {
         "name": "City of Cape Town",
-        "confirmed": 9,
-        "suspected": 3,
-        "vaccinated": 99021,
+        "confirmed": 8,
+        "suspected": 0,
+        "vaccinated": 34334,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -617,14 +617,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 99021,
+        "dosesAdm": 34334,
         "spoilage": 0
       },
       {
         "name": "Garden Route",
-        "confirmed": 9,
-        "suspected": 1,
-        "vaccinated": 63875,
+        "confirmed": 10,
+        "suspected": 0,
+        "vaccinated": 63710,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -632,14 +632,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 63875,
+        "dosesAdm": 63710,
         "spoilage": 0
       },
       {
         "name": "Overberg",
         "confirmed": 0,
         "suspected": 0,
-        "vaccinated": 19127,
+        "vaccinated": 6656,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -647,14 +647,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 19127,
+        "dosesAdm": 6656,
         "spoilage": 0
       },
       {
         "name": "West Coast",
-        "confirmed": 0,
+        "confirmed": 3,
         "suspected": 0,
-        "vaccinated": 441,
+        "vaccinated": 65632,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -662,7 +662,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 441,
+        "dosesAdm": 65632,
         "spoilage": 0
       }
     ]
@@ -679,7 +679,7 @@ window.FMD_DATA = {
       40,
       61,
       72,
-      72
+      62
     ],
     "FS": [
       316,
@@ -848,8 +848,8 @@ window.FMD_DATA = {
       "name": "Limpopo",
       "minAlloc": 151720,
       "jocRx": 431680,
-      "minVax": 203576,
-      "jocVax": 203576
+      "minVax": 260268,
+      "jocVax": 260268
     },
     {
       "code": "FS",
@@ -1369,6 +1369,36 @@ window.FMD_DATA = {
       "effective": "15 May 2026",
       "ingested": "15 May 2026",
       "status": "ingested"
+    },
+    {
+      "name": "Limpopo FMD Priority Committee Presentation — 14 May 2026 (data as at 12 May)",
+      "type": "Provincial FMD Priority Committee presentation",
+      "effective": "12 May 2026",
+      "ingested": "15 May 2026",
+      "status": "ingested",
+      "notes": "FMD confirmed in Sable Antelope on 12 May 2026 noted in presentation."
+    },
+    {
+      "name": "Western Cape ArcGIS FMD Dashboard screenshot — 9 May 2026",
+      "type": "Provincial ArcGIS dashboard (screenshot)",
+      "effective": "9 May 2026",
+      "ingested": "15 May 2026",
+      "status": "ingested",
+      "notes": "District case and vaccination breakdown applied; provincial totals retained from 14 May live API."
+    },
+    {
+      "name": "Gauteng GDARD FMD Infographic — 29 April 2026",
+      "type": "Provincial infographic (WhatsApp)",
+      "effective": "29 April 2026",
+      "ingested": "15 May 2026",
+      "status": "reviewed — superseded by PC 8 May data, not applied"
+    },
+    {
+      "name": "MINMEC FMD Presentation — 7 May 2026",
+      "type": "MINMEC presentation",
+      "effective": "7 May 2026",
+      "ingested": "15 May 2026",
+      "status": "reviewed — policy content only, no new data applied"
     }
   ]
 };
