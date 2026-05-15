@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMD Situation Dashboard — AgriCulture South Africa</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="fmd-data.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pine:      #102D2D;
+      --pine-mid:  #1E4A4A;
+      --olive:     #5B7E3D;
+      --grass:     #A2C93C;
+      --sage:      #95A495;
+      --pale-sage: #D7E1D1;
+      --lime:      #CBD929;
+      --white:     #FFFFFF;
+      --charcoal:  #58595B;
+      --stone:     #A7ABA0;
+      --bone:      #F6F7F3;
+      --mist:      #E4E6D9;
+      --critical:  #B94040;
+      --warning:   #C97A22;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Acumin Pro", "Inter", "Calibri", system-ui, sans-serif;
+      font-size: 16px; color: var(--charcoal);
+      background: var(--bone); line-height: 1.5;
+    }
+    h1, h2, h3, h4 { color: var(--pine); font-weight: 300; }
+
+    /* ── Tables ─────────────────────────────────────────────────────── */
+    table { border-collapse: collapse; width: 100%; }
+    th {
+      background: var(--pine); color: var(--white);
+      font-weight: 500; font-size: 12px;
+      text-transform: uppercase; letter-spacing: .06em;
+      padding: 11px 14px; text-align: center;
+    }
+    th:first-child { text-align: left; }
+    td {
+      padding: 10px 14px; font-size: 14px;
+      border-bottom: 1px solid var(--mist);
+      text-align: center; vertical-align: middle;
+    }
+    td:first-child { text-align: left; }
+    tr:nth-child(even) td { background: var(--bone); }
+    tr:hover td { background: var(--pale-sage); transition: background .15s; }
+    tr.total-row td {
+      font-weight: 600; color: var(--pine);
+      background: var(--pale-sage);
+      border-top: 2px solid var(--pine-mid);
+    }
+    tr.total-row:hover td { background: var(--pale-sage); }
+
+    /* ── Layout ─────────────────────────────────────────────────────── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(285px, 1fr)); gap: 16px; }
+    @media (max-width: 1100px) { .container { padding: 0 24px; } .grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px)  { .grid-2, .grid-3 { grid-template-columns: 1fr; } .grid-kpi { grid-template-columns: 1fr 1fr; } }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    .site-header { background: var(--pine); }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 56px; max-width: 1280px; margin: 0 auto; gap: 20px;
+    }
+    .header-brand { display: flex; align-items: center; gap: 16px; }
+    .header-icon  { width: 40px; height: 40px; flex-shrink: 0; }
+    .header-eyebrow { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 3px; }
+    .header-title   { font-size: 17px; font-weight: 300; color: var(--white); }
+    .header-meta { text-align: right; }
+    .header-meta-label { font-size: 12px; color: rgba(255,255,255,.55); margin-bottom: 4px; }
+    .header-meta select {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
+      color: var(--white); padding: 7px 14px; border-radius: 63px;
+      font-size: 13px; font-family: inherit; cursor: pointer;
+    }
+
+    /* ── Nav ─────────────────────────────────────────────────────────── */
+    .site-nav { background: var(--pine-mid); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 56px; display: flex; overflow-x: auto; }
+    .nav-btn {
+      padding: 14px 22px; color: rgba(255,255,255,.55);
+      background: none; border: none; border-bottom: 2px solid transparent;
+      font-size: 14px; font-family: inherit; cursor: pointer;
+      white-space: nowrap; transition: all .2s;
+    }
+    .nav-btn:hover { color: var(--white); }
+    .nav-btn.active { color: var(--lime); border-bottom-color: var(--lime); }
+
+    /* ── Alert ───────────────────────────────────────────────────────── */
+    .alert-banner {
+      background: var(--pine-mid); color: var(--white);
+      padding: 12px 56px; display: flex; align-items: center; gap: 14px;
+      font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .alert-dot { width: 8px; height: 8px; background: var(--lime); border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+
+    /* ── Sections ────────────────────────────────────────────────────── */
+    .section { display: none; padding: 48px 0 72px; }
+    .section.active { display: block; }
+    .kicker { display: block; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: rgba(16,45,45,.65); margin-bottom: 10px; }
+    .section-title { font-size: 45px; font-weight: 300; letter-spacing: -.01em; margin-bottom: 8px; line-height: 1.05; }
+    .section-sub   { font-size: 16px; font-weight: 300; color: var(--charcoal); margin-bottom: 36px; max-width: 700px; }
+
+    /* ── KPI cards ───────────────────────────────────────────────────── */
+    .kpi-card { background: var(--white); border-radius: 15px; padding: 24px 26px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
+    .kpi-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--stone); margin-bottom: 10px; }
+    .kpi-value { font-size: 36px; font-weight: 300; color: var(--pine); line-height: 1.1; overflow-wrap: break-word; word-break: break-word; }
+    .kpi-delta { font-size: 13px; margin-top: 8px; color: var(--stone); }
+    .kpi-delta .up   { color: var(--critical); font-weight: 500; }
+    .kpi-delta .down { color: var(--olive);    font-weight: 500; }
+
+    /* ── Province grid ───────────────────────────────────────────────── */
+    .province-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .province-card {
+      background: var(--white); border-radius: 15px; padding: 22px;
+      cursor: pointer; border: 1.5px solid transparent; transition: all .22s; position: relative; overflow: hidden;
+    }
+    .province-card::after { content:''; position:absolute; top:0; left:0; right:0; border-radius:15px 15px 0 0; }
+    .province-card.sev-0::after { background: var(--pale-sage); height:4px; }
+    .province-card.sev-1::after { background: var(--sage);      height:6px; }
+    .province-card.sev-2::after { background: var(--olive);     height:9px; }
+    .province-card.sev-3::after { background: var(--warning);   height:13px; }
+    .province-card.sev-4::after { background: var(--critical);  height:18px; }
+    .province-card.sev-3 { background: #FDF8F2; }
+    .province-card.sev-4 { background: #FDF3F3; }
+    .province-card:hover { border-color: var(--grass); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,45,45,.1); }
+    .province-code        { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--stone); }
+    .province-name        { font-size: 17px; font-weight: 400; color: var(--pine); margin: 5px 0 2px; }
+    .province-cases       { font-size: 32px; font-weight: 300; color: var(--pine); line-height: 1; }
+    .province-cases-label { font-size: 12px; color: var(--stone); margin-bottom: 12px; }
+    .province-bar-wrap    { background: var(--mist); border-radius: 99px; height: 5px; margin-bottom: 5px; }
+    .province-bar         { height: 5px; border-radius: 99px; background: var(--olive); transition: width .4s; }
+    .province-bar.low     { background: var(--pale-sage); }
+    .province-coverage    { font-size: 12px; color: var(--stone); margin-bottom: 12px; }
+    .province-drill-hint  { font-size: 12px; color: var(--grass); font-weight: 500; }
+
+    /* ── Cards ───────────────────────────────────────────────────────── */
+    .card { background: var(--white); border-radius: 15px; padding: 28px; }
+    .card-kicker { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--stone); margin-bottom: 6px; }
+    .card-title  { font-size: 18px; font-weight: 300; color: var(--pine); margin-bottom: 20px; }
+
+    /* ── Progress bars ───────────────────────────────────────────────── */
+    .prog-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .prog-label { flex: 0 0 160px; font-size: 13.5px; color: var(--charcoal); }
+    .prog-wrap  { flex: 1; background: var(--mist); border-radius: 99px; height: 7px; }
+    .prog-fill  { height: 7px; border-radius: 99px; background: var(--olive); transition: width .5s; }
+    .prog-pct   { flex: 0 0 56px; text-align: right; font-size: 13.5px; font-weight: 500; color: var(--pine); }
+
+    /* ── Concern cards ───────────────────────────────────────────────── */
+    .concern-card { background: var(--white); border-radius: 15px; overflow: hidden; margin-bottom: 16px; }
+    .concern-header { display: flex; align-items: center; gap: 12px; padding: 12px 24px; }
+    .concern-header.critical { background: #F8ECEC; }
+    .concern-header.warning  { background: #FBF3E6; }
+    .concern-header.info     { background: var(--pale-sage); }
+    .concern-badge { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; padding: 3px 10px; border-radius: 99px; }
+    .concern-badge.critical { background: var(--critical); color: var(--white); }
+    .concern-badge.warning  { background: var(--warning);  color: var(--white); }
+    .concern-badge.info     { background: var(--olive);    color: var(--white); }
+    .concern-header-label { font-size: 13px; color: var(--charcoal); }
+    .concern-body   { padding: 20px 24px; }
+    .concern-title  { font-size: 18px; font-weight: 300; color: var(--pine); margin-bottom: 10px; }
+    .concern-text   { font-size: 14.5px; color: var(--charcoal); margin-bottom: 16px; line-height: 1.55; }
+    .concern-action { background: var(--bone); border-radius: 10px; padding: 14px 18px; font-size: 13.5px; }
+    .concern-action strong { color: var(--pine); }
+
+    /* ── Province hero ───────────────────────────────────────────────── */
+    .province-hero { background: var(--pine); border-radius: 15px; padding: 36px 40px; margin-bottom: 24px; }
+    .province-hero h2 { font-size: 45px; font-weight: 300; color: var(--white); margin-bottom: 4px; }
+    .province-hero-sub { font-size: 14px; color: rgba(255,255,255,.55); margin-bottom: 24px; }
+    .hero-kpis { display: flex; gap: 36px; flex-wrap: wrap; }
+    .hero-kpi .val { font-size: 28px; font-weight: 300; color: var(--lime); }
+    .hero-kpi .lbl { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.55); }
+
+    /* ── Back button (signature pill) ────────────────────────────────── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 16px;
+      background: var(--pine); color: var(--white);
+      border: none; border-radius: 63px; cursor: pointer;
+      font-size: 14px; font-family: inherit; margin-bottom: 28px; transition: background .2s;
+    }
+    .back-btn:hover { background: var(--olive); }
+    .back-btn-bottom { margin-top: 32px; margin-bottom: 0; }
+
+    /* ── No data state ───────────────────────────────────────────────── */
+    .no-data-note { background: var(--bone); border: 1px solid var(--mist); border-radius: 15px; padding: 40px 28px; text-align: center; color: var(--charcoal); font-size: 15px; }
+    .no-data-icon { width: 48px; height: 48px; border-radius: 99px; background: var(--pale-sage); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; }
+    .no-data-icon svg { width: 22px; height: 22px; fill: none; stroke: var(--pine); stroke-width: 1.5; stroke-linecap: round; }
+
+    /* ── Comparison discrepancy colours ──────────────────────────────── */
+    td.discrepancy { color: var(--critical); font-weight: 500; }
+    td.match       { color: var(--olive);    font-weight: 500; }
+
+    /* ── Pills ───────────────────────────────────────────────────────── */
+    .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; background: var(--pale-sage); color: var(--pine); text-transform: uppercase; letter-spacing: .05em; }
+    .pill.red   { background: #F8ECEC; color: var(--critical); }
+    .pill.amber { background: #FBF3E6; color: var(--warning);  }
+    .pill.green { background: #EBF3E5; color: var(--olive);    }
+
+    /* ── Sub-section divider ─────────────────────────────────────────── */
+    .sub-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--mist); }
+    .sub-section-title { font-size: 22px; font-weight: 300; color: var(--pine); margin-bottom: 20px; }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .site-footer { background: var(--pine); padding: 36px 56px; }
+    .footer-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,.13); }
+    .footer-brand { display: flex; align-items: center; gap: 14px; }
+    .footer-icon  { width: 32px; height: 32px; }
+    .footer-name  { font-size: 15px; font-weight: 300; color: var(--white); }
+    .footer-detail { font-size: 13px; color: rgba(255,255,255,.55); margin-top: 2px; }
+    .footer-right  { text-align: right; font-size: 13px; color: rgba(255,255,255,.55); }
+    .footer-legal  { max-width: 1280px; margin: 16px auto 0; font-size: 12px; letter-spacing: .05em; color: rgba(255,255,255,.5); text-align: center; }
+
+    /* ── Draft badge ─────────────────────────────────────────────────── */
+    .draft-badge { position: fixed; bottom: 20px; right: 20px; background: var(--warning); color: var(--white); padding: 8px 20px; border-radius: 99px; font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; z-index: 999; }
+
+    /* ── Utilities ───────────────────────────────────────────────────── */
+    .mb-16 { margin-bottom: 16px; } .mb-24 { margin-bottom: 24px; } .mb-32 { margin-bottom: 32px; }
+    .text-sm { font-size: 13px; } .text-stone { color: var(--stone); }
+    .divider { border: none; border-top: 1px solid var(--mist); margin: 32px 0; }
+    canvas { max-width: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <svg class="header-icon" viewBox="0 0 334.48 336.08" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle fill="#fff" cx="166.78" cy="63.29" r="36.99"/>
+        <path fill="#fff" d="M119.29,140.83c11.8,6.27,25.08,14.13,26.94,28.88.25,1.98.38,4.26.38,6.84.02,26.05.02,52.1.01,78.14,0,.15-.12.28-.28.28-.05,0-.1-.01-.14-.04-3.85-2.16-5.76-5.5-5.72-10.02.13-16.66.22-33.35-.02-50.01-.04-2.54-.16-4.46-.36-5.74-1.12-7.06-4.66-12.7-10.63-16.91-13.59-9.59-28.81-16.12-41.47-26.72-10.69-8.95-18.06-20.55-21.58-34.04-1.2-4.6-1.99-8.57-1.87-13.1,0-.04.04-.07.08-.06.03,0,.05.02.06.04,3.21,9.96,9.94,17.75,18.74,23.31,1.08.68,2.75,1.62,5.01,2.82,10.29,5.43,20.57,10.88,30.84,16.34Z"/>
+        <path fill="#fff" d="M72.31,149.63c8.6,4.63,17.28,9.1,25.93,13.63,5.68,2.97,10.48,5.61,14.4,7.92,10.2,6.02,18.72,14.31,19.68,26.84.05.7.09,2.62.1,5.75.04,8.42.05,16.84.02,25.26,0,.46-.03.84-.07,1.15-.02.1-.06.12-.15.06-2.27-1.73-3.4-3.98-3.39-6.74.02-3.44.08-5.82-.59-8.65-1.59-6.73-4.7-12.32-10.36-16.3-16.13-11.35-34.88-18.02-49.22-32.38-6.76-6.78-11.72-14.64-14.86-23.61-2.08-5.92-3.41-11.91-3.61-18.19,0-.06.05-.11.11-.11.05,0,.09.03.1.07,3.72,11.28,11.56,19.75,21.91,25.32Z"/>
+        <path fill="#fff" d="M154.93,164.43c.2,1.32.31,3.23.31,5.74,0,45.53.01,94.08.03,139.61h7.19c.12-51.77.13-106.55,0-158.32,0-3.01-.05-4.93-.12-5.75-.75-8.71-5.74-16.57-12.87-21.5-4.5-3.11-9.35-5.72-14.48-8.24-9.8-4.82-19.6-9.66-29.4-14.5-1.71-.85-4.59-2.41-8.62-4.7-8.35-4.73-14.98-11.63-18.64-20.39-.48-1.15-.94-2.28-1.37-3.4-.08-.2-.12-.19-.12.02-.02,2.87.24,5.64.78,8.29,3.05,15.18,10.83,28.19,22.75,37.93,9.85,8.04,20.44,13.53,32.22,20.18,1.89,1.07,3.53,2.04,4.92,2.93,2.8,1.79,6.12,3.81,8.84,6.07,4.73,3.94,7.65,10.03,8.58,16.03Z"/>
+        <path fill="#fff" d="M215.24,140.83c-11.8,6.27-25.07,14.13-26.93,28.88-.25,1.98-.37,4.26-.38,6.84-.02,26.05-.02,52.1-.01,78.14,0,.15.12.28.28.28.05,0,.1-.01.14-.04,3.85-2.16,5.75-5.5,5.72-10.02-.13-16.66-.22-33.35.02-50.01.04-2.54.16-4.46.36-5.74,1.12-7.06,4.66-12.7,10.62-16.91,13.58-9.59,28.79-16.12,41.45-26.72,10.69-8.95,18.05-20.55,21.56-34.04,1.2-4.6,1.99-8.57,1.86-13.1,0-.04-.04-.07-.08-.06-.03,0-.05.02-.06.04-3.21,9.96-9.94,17.75-18.73,23.31-1.08.68-2.75,1.62-5.01,2.82-10.28,5.43-20.56,10.88-30.83,16.34Z"/>
+        <path fill="#fff" d="M262.19,149.63c-8.59,4.63-17.27,9.1-25.92,13.63-5.67,2.97-10.47,5.61-14.39,7.92-10.2,6.02-18.71,14.31-19.67,26.84-.05.7-.09,2.62-.1,5.75-.04,8.42-.05,16.84-.02,25.26,0,.46.03.84.07,1.15.02.1.06.12.15.06,2.27-1.73,3.4-3.98,3.39-6.74-.02-3.44-.08-5.82.59-8.65,1.59-6.73,4.7-12.32,10.35-16.3,16.12-11.35,34.86-18.02,49.19-32.38,6.76-6.78,11.71-14.64,14.85-23.61,2.07-5.92,3.41-11.91,3.61-18.19,0-.06-.05-.11-.11-.11-.05,0-.09.03-.1.07-3.72,11.28-11.56,19.75-21.89,25.32Z"/>
+        <path fill="#fff" d="M179.61,164.43c-.2,1.32-.3,3.23-.3,5.74,0,45.53-.01,94.08-.03,139.61h-7.19c-.12-51.77-.13-106.55,0-158.32,0-3.01.05-4.93.12-5.75.75-8.71,5.74-16.57,12.86-21.5,4.49-3.11,9.35-5.72,14.47-8.24,9.8-4.82,19.59-9.66,29.38-14.5,1.71-.85,4.58-2.41,8.62-4.7,8.34-4.73,14.97-11.63,18.63-20.39.48-1.15.94-2.28,1.37-3.4.08-.2.12-.19.12.02.02,2.87-.24,5.64-.78,8.29-3.05,15.18-10.82,28.19-22.73,37.93-9.85,8.04-20.43,13.53-32.2,20.18-1.89,1.07-3.53,2.04-4.92,2.93-2.8,1.79-6.12,3.81-8.84,6.07-4.73,3.94-7.64,10.03-8.57,16.03Z"/>
+      </svg>
+      <div>
+        <div class="header-eyebrow">AgriCulture South Africa</div>
+        <div class="header-title">FMD Situation and Vaccine Dashboard</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-meta-label">View data as at</div>
+      <select id="week-selector" onchange="changeWeek(this.value)"></select>
+    </div>
+  </div>
+</header>
+
+<div class="alert-banner">
+  <div class="alert-dot"></div>
+  <div>Active FMD outbreak. Vaccination programme under way across all 9 provinces. Three critical concerns and three warnings are flagged. Select "Areas of concern" for detail and recommended actions.</div>
+</div>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showSection('overview',this)">National overview</button>
+    <button class="nav-btn" onclick="showSection('vaccines',this)">Vaccine tracking</button>
+    <button class="nav-btn" onclick="showSection('ministerial',this)">Minister vs. JOC</button>
+    <button class="nav-btn" onclick="showSection('concerns',this)">Areas of concern</button>
+    <button class="nav-btn" onclick="showSection('mpo',this)">MPO and dairy</button>
+    <button class="nav-btn" onclick="showSection('sources',this)">Sources</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: National Overview                                           -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-overview" class="section active">
+  <div class="container">
+    <span class="kicker">Disease surveillance and vaccination progress</span>
+    <h2 class="section-title">National overview.</h2>
+    <p class="section-sub">Weekly snapshot across all provinces. Select a province card to view district-level detail.</p>
+
+    <div class="grid-kpi mb-32">
+      <div class="kpi-card"><div class="kpi-label">Confirmed positive cases</div><div class="kpi-value" id="kpi-confirmed">-</div><div class="kpi-delta" id="kpi-confirmed-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Suspected cases</div><div class="kpi-value" id="kpi-suspected">-</div><div class="kpi-delta" id="kpi-suspected-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Doses received nationally</div><div class="kpi-value" id="kpi-doses-rx">-</div><div class="kpi-delta" id="kpi-doses-rx-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Animals vaccinated</div><div class="kpi-value" id="kpi-vaccinated">-</div><div class="kpi-delta" id="kpi-vaccinated-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">National herd coverage</div><div class="kpi-value" id="kpi-coverage">-</div><div class="kpi-delta" id="kpi-coverage-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Vaccine stock balance</div><div class="kpi-value" id="kpi-balance">-</div><div class="kpi-delta" id="kpi-balance-delta"></div></div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;" class="mb-16">
+      <span class="kicker" style="margin:0;">Provincial snapshot. Click a province to view district detail.</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--stone);">
+        Severity:
+        <span class="pill">No cases</span>
+        <span class="pill" style="background:var(--sage);color:var(--white);">Low — 1 to 50</span>
+        <span class="pill green">Moderate — 51 to 200</span>
+        <span class="pill amber">High — 201 to 500</span>
+        <span class="pill red">Critical — 500+</span>
+      </div>
+    </div>
+    <div class="province-grid mb-32" id="province-grid"></div>
+
+    <div class="grid-2 mb-32">
+      <div class="card"><div class="card-kicker">Disease surveillance</div><div class="card-title">Weekly confirmed cases — national cumulative.</div><canvas id="chart-cases" height="220"></canvas></div>
+      <div class="card"><div class="card-kicker">Vaccination progress</div><div class="card-title">Cumulative doses administered nationally.</div><canvas id="chart-vax" height="220"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Provincial data</div>
+      <div class="card-title">Detailed provincial table.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Province</th><th>Confirmed</th><th>Suspected</th><th>Pending</th>
+            <th>Doses received</th><th>Animals vaccinated</th><th>Herd size</th><th>Coverage</th>
+          </tr></thead>
+          <tbody id="province-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: Provincial Drill-down (own section, not inside overview)    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-province" class="section">
+  <div class="container">
+    <button class="back-btn" onclick="closeProvince()">&#8592; Back to national overview</button>
+
+    <div class="province-hero" id="province-hero-panel"></div>
+
+    <div class="grid-2 mb-24">
+      <div class="card">
+        <div class="card-kicker">Weekly trend</div>
+        <div class="card-title" id="prov-trend-title">Confirmed cases.</div>
+        <canvas id="chart-prov-trend" height="210"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-kicker">Vaccine supply and utilisation by district</div>
+        <div class="card-title">Doses received vs. doses administered.</div>
+        <canvas id="chart-prov-supply" height="210"></canvas>
+      </div>
+    </div>
+
+    <div class="card mb-24" id="district-table-wrap"></div>
+
+    <button class="back-btn back-btn-bottom" onclick="closeProvince()">&#8592; Back to national overview</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: Vaccine Tracking                                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-vaccines" class="section">
+  <div class="container">
+    <span class="kicker">Procurement, distribution and administration</span>
+    <h2 class="section-title">Vaccine tracking.</h2>
+    <p class="section-sub">Doses received, administered and in balance — by manufacturer, distribution channel and province.</p>
+
+    <div class="grid-4 mb-24">
+      <div class="card"><div class="card-kicker">Manufacturer</div><div class="card-title">Bioaftogen.</div><div id="vax-bioaftogen"></div></div>
+      <div class="card"><div class="card-kicker">Manufacturer</div><div class="card-title">Dolvet.</div><div id="vax-dolvet"></div></div>
+      <div class="card"><div class="card-kicker">Manufacturer</div><div class="card-title">OBP / ARC.</div><div id="vax-obp"></div></div>
+      <div class="card"><div class="card-kicker">Manufacturer</div><div class="card-title">BVI.</div><div id="vax-bvi"></div></div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card"><div class="card-kicker">Distribution channel</div><div class="card-title">State vs. private veterinarians.</div><canvas id="chart-channel" height="220"></canvas></div>
+      <div class="card"><div class="card-kicker">Supply breakdown</div><div class="card-title">Doses received by manufacturer.</div><canvas id="chart-mfr" height="220"></canvas></div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card"><div class="card-kicker">Species</div><div class="card-title">Vaccination by species — national cumulative.</div><canvas id="chart-species" height="220"></canvas></div>
+      <div class="card"><div class="card-kicker">Herd type</div><div class="card-title">Commercial vs. communal herd.</div><canvas id="chart-tenure" height="220"></canvas></div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card"><div class="card-kicker">Provincial progress</div><div class="card-title">Herd coverage by province.</div><div id="prov-coverage-bars"></div></div>
+      <div class="card"><div class="card-kicker">Animals vaccinated</div><div class="card-title">Vaccinated animals vs. doses administered — national.</div><canvas id="chart-vax-adm" height="220"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Cold chain and waste</div>
+      <div class="card-title">Vaccine spoilage and losses — by province and manufacturer.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Province</th>
+            <th>Bio spoiled</th><th>Bio rate</th>
+            <th>Dolvet spoiled</th><th>Dolvet rate</th>
+            <th>OBP spoiled</th><th>OBP rate</th>
+            <th>BVI spoiled</th><th>BVI rate</th>
+            <th>Total spoilage</th><th>Overall rate</th><th>Status</th>
+          </tr></thead>
+          <tbody id="spoilage-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: Minister vs JOC                                             -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-ministerial" class="section">
+  <div class="container">
+    <span class="kicker">Data reconciliation</span>
+    <h2 class="section-title">Minister vs. provincial JOC.</h2>
+    <p class="section-sub">We compare figures from official ministerial briefings with data reported through provincial Joint Operations Committee engagements. Discrepancies are noted and tracked. Where gaps exist, we raise the concern for formal clarification.</p>
+
+    <div class="concern-card mb-32">
+      <div class="concern-header critical">
+        <span class="concern-badge critical">Data reconciliation note</span>
+        <span class="concern-header-label">A significant gap exists between nationally reported procurement figures and provincial receipt data.</span>
+      </div>
+      <div class="concern-body">
+        <div class="concern-text">A total of 6 000 000 doses have been reported as procured nationally. Provincial Joint Operations Committee returns account for 3 472 758 doses received at provincial level, a gap of 2 527 242 doses. A formal reconciliation of these figures has not yet been made available. We raise this concern in the interest of transparency and accurate programme reporting.</div>
+      </div>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-kicker">Headline figures</div>
+      <div class="card-title">Ministerial briefing vs. JOC aggregate — key metrics.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Metric</th><th>Ministerial figure</th><th>JOC aggregate</th><th>Difference</th><th>Status</th></tr></thead>
+          <tbody id="compare-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sub-section 1: Vaccine Allocation -->
+    <div class="sub-section">
+      <span class="kicker">Vaccine procurement and distribution</span>
+      <div class="sub-section-title">Doses allocated vs. doses received at provincial level.</div>
+      <div class="grid-2 mb-24">
+        <div class="card">
+          <div class="card-kicker">Provincial breakdown</div>
+          <div class="card-title">Ministerial allocation vs. JOC confirmed receipts.</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Province</th><th>Min. allocation</th><th>JOC confirmed</th><th>Variance</th><th>Status</th></tr></thead>
+              <tbody id="alloc-compare-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-kicker">Comparative view</div>
+          <div class="card-title">Allocation vs. confirmed receipts by province.</div>
+          <canvas id="chart-alloc-prov" height="280"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-section 2: Animals Vaccinated -->
+    <div class="sub-section">
+      <span class="kicker">Vaccination outcomes</span>
+      <div class="sub-section-title">Animals vaccinated — ministerial vs. JOC reporting.</div>
+      <div class="grid-2 mb-24">
+        <div class="card">
+          <div class="card-kicker">Provincial breakdown</div>
+          <div class="card-title">Ministerial figure vs. JOC confirmed animals vaccinated.</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Province</th><th>Min. animals vaccinated</th><th>JOC animals vaccinated</th><th>Variance</th><th>Status</th></tr></thead>
+              <tbody id="vacc-compare-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-kicker">Comparative view</div>
+          <div class="card-title">Animals vaccinated by province — ministerial vs. JOC.</div>
+          <canvas id="chart-vacc-prov" height="280"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: Areas of Concern                                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-concerns" class="section">
+  <div class="container">
+    <span class="kicker">Risk identification and recommended actions</span>
+    <h2 class="section-title">Areas of concern.</h2>
+    <p class="section-sub">Issues identified from data analysis across disease surveillance, vaccine supply and reporting. We raise these concerns in a factual and impartial manner. Each item carries a recommended action for consideration.</p>
+
+    <div class="grid-kpi mb-32">
+      <div class="kpi-card"><div class="kpi-label">Critical concerns</div><div class="kpi-value" id="count-critical">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Warnings</div><div class="kpi-value" id="count-warning">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Items resolved this week</div><div class="kpi-value" id="count-resolved">-</div></div>
+    </div>
+
+    <div id="concerns-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: MPO / Dairy                                                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-mpo" class="section">
+  <div class="container">
+    <span class="kicker">Milk Producers Organisation</span>
+    <h2 class="section-title">MPO and dairy industry.</h2>
+    <p class="section-sub">Data sourced from MPO weekly submissions. The dairy industry is uniquely exposed given biosecurity requirements and milk-safety considerations on confirmed FMD farms.</p>
+
+    <div class="grid-kpi mb-32">
+      <div class="kpi-card"><div class="kpi-label">Confirmed positive dairy farms</div><div class="kpi-value" id="mpo-confirmed-farms">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Suspected dairy farms</div><div class="kpi-value" id="mpo-active-farms">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Dairy cows vaccinated</div><div class="kpi-value" id="mpo-vaccinated">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Dairy cows at risk nationally</div><div class="kpi-value" id="mpo-at-risk">-</div></div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card"><div class="card-kicker">Provincial breakdown</div><div class="card-title">Dairy cow vaccinations by province.</div><canvas id="chart-mpo-prov" height="220"></canvas></div>
+      <div class="card"><div class="card-kicker">Farm status</div><div class="card-title">Confirmed positive and suspected dairy farms by province.</div><canvas id="chart-mpo-farms" height="220"></canvas></div>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-kicker">MPO provincial detail</div>
+      <div class="card-title">Dairy herd and farm status.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Province</th><th>Dairy cows vaccinated</th><th>Dairy cows at risk</th>
+            <th>Coverage</th><th>Confirmed positive farms</th><th>Suspected farms</th><th>Status</th>
+          </tr></thead>
+          <tbody id="mpo-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="concern-card">
+      <div class="concern-header info">
+        <span class="concern-badge info">MPO note</span>
+        <span class="concern-header-label">Milk movement restrictions remain in place for 8 districts.</span>
+      </div>
+      <div class="concern-body">
+        <div class="concern-text">Movement restrictions on raw milk from farms with active FMD cases remain in effect. MPO is coordinating with processors to manage supply continuity. Weekly updates are provided to the National Milk Recording Scheme.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: Sources                                                      -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div id="section-sources" class="section">
+  <div class="container">
+    <span class="kicker">Data ingestion log</span>
+    <h2 class="section-title">Sources and methodology.</h2>
+    <p class="section-sub">All source documents received, processed and archived. We record the effective date (when information is valid) and the ingestion date (when it was processed). The dashboard updates automatically each morning at 08:00 from the provincial inbox.</p>
+    <div class="card">
+      <div class="card-kicker">Current week sources</div>
+      <div class="card-title">Source documents processed.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Document</th><th>Type</th><th>Effective date</th><th>Ingested</th><th>Status</th></tr></thead>
+          <tbody id="sources-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg class="footer-icon" viewBox="0 0 334.48 336.08" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle fill="#fff" opacity=".5" cx="166.78" cy="63.29" r="36.99"/>
+        <path fill="#fff" opacity=".5" d="M154.93,164.43c.2,1.32.31,3.23.31,5.74,0,45.53.01,94.08.03,139.61h7.19c.12-51.77.13-106.55,0-158.32,0-3.01-.05-4.93-.12-5.75-.75-8.71-5.74-16.57-12.87-21.5-4.5-3.11-9.35-5.72-14.48-8.24-9.8-4.82-19.6-9.66-29.4-14.5-1.71-.85-4.59-2.41-8.62-4.7-8.35-4.73-14.98-11.63-18.64-20.39-.48-1.15-.94-2.28-1.37-3.4-.08-.2-.12-.19-.12.02-.02,2.87.24,5.64.78,8.29,3.05,15.18,10.83,28.19,22.75,37.93,9.85,8.04,20.44,13.53,32.22,20.18,1.89,1.07,3.53,2.04,4.92,2.93,2.8,1.79,6.12,3.81,8.84,6.07,4.73,3.94,7.65,10.03,8.58,16.03Z"/>
+        <path fill="#fff" opacity=".5" d="M179.61,164.43c-.2,1.32-.3,3.23-.3,5.74,0,45.53-.01,94.08-.03,139.61h-7.19c-.12-51.77-.13-106.55,0-158.32,0-3.01.05-4.93.12-5.75.75-8.71,5.74-16.57,12.86-21.5,4.49-3.11,9.35-5.72,14.47-8.24,9.8-4.82,19.59-9.66,29.38-14.5,1.71-.85,4.58-2.41,8.62-4.7,8.34-4.73,14.97-11.63,18.63-20.39.48-1.15.94-2.28,1.37-3.4.08-.2.12-.19.12.02.02,2.87-.24,5.64-.78,8.29-3.05,15.18-10.82,28.19-22.73,37.93-9.85,8.04-20.43,13.53-32.2,20.18-1.89,1.07-3.53,2.04-4.92,2.93-2.8,1.79-6.12,3.81-8.84,6.07-4.73,3.94-7.64,10.03-8.57,16.03Z"/>
+      </svg>
+      <div>
+        <div class="footer-name">AgriCulture South Africa</div>
+        <div class="footer-detail">FMD Situation and Vaccine Dashboard</div>
+      </div>
+    </div>
+    <div class="footer-right">Dashboard version: 2.0-draft<br>Next scheduled update: Friday, 16 May 2026</div>
+  </div>
+  <div class="footer-legal">Copyright 2026 AgriSA. Data compiled from provincial JOC returns, MPO submissions and ministerial briefings.</div>
+</footer>
+
+<div class="draft-badge">Draft for review</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- DATA AND LOGIC                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script>
+const SAMPLE_DATA = {
+  weeks: [
+    {label:'13 Mar 2026'},{label:'20 Mar 2026'},{label:'27 Mar 2026'},
+    {label:'3 Apr 2026'},{label:'10 Apr 2026'},{label:'17 Apr 2026'},
+    {label:'24 Apr 2026'},{label:'1 May 2026'},{label:'8 May 2026'},
+  ],
+  /* national weekly: [confirmed, suspected, dosesRx, vaccinated] */
+  national_weekly: [
+    [420,180,820000,180000],[580,280,1100000,380000],[740,390,1480000,580000],
+    [940,510,1820000,840000],[1110,640,2140000,1120000],[1340,760,2680000,1560000],
+    [1520,880,3100000,1920000],[1690,958,3472758,2284154],[1820,1010,3720000,2540000],
+  ],
+  herd: { LP:2850000, FS:2640000, EC:2180000, KZN:1720000, MP:980000, NW:1240000, GP:420000, NC:980000, WC:520000 },
+  provinces: [
+    { code:'LP',  name:'Limpopo',       confirmed:820,  suspected:448, pending:98,  vaccinated:820000,  dosesRx:{bio:500000,dol:680000,obp:0,bvi:60000},     spoilage:{bio:1800,dol:2400,obp:0,bvi:28},    hasDistricts:true  },
+    { code:'FS',  name:'Free State',    confirmed:340,  suspected:282, pending:62,  vaccinated:480000,  dosesRx:{bio:280000,dol:360000,obp:0,bvi:40000},     spoilage:{bio:820,dol:1100,obp:0,bvi:14},     hasDistricts:true  },
+    { code:'EC',  name:'Eastern Cape',  confirmed:290,  suspected:124, pending:48,  vaccinated:390000,  dosesRx:{bio:220000,dol:300000,obp:20000,bvi:20000}, spoilage:{bio:600,dol:980,obp:120,bvi:8},     hasDistricts:true  },
+    { code:'KZN', name:'KwaZulu-Natal', confirmed:142,  suspected:66,  pending:22,  vaccinated:210000,  dosesRx:{bio:130000,dol:170000,obp:0,bvi:20000},     spoilage:{bio:210,dol:380,obp:0,bvi:6},       hasDistricts:false },
+    { code:'MP',  name:'Mpumalanga',    confirmed:61,   suspected:22,  pending:8,   vaccinated:120000,  dosesRx:{bio:80000,dol:90000,obp:0,bvi:10000},       spoilage:{bio:80,dol:140,obp:0,bvi:2},        hasDistricts:false },
+    { code:'NW',  name:'North West',    confirmed:24,   suspected:8,   pending:1,   vaccinated:78000,   dosesRx:{bio:50000,dol:65000,obp:0,bvi:5000},        spoilage:{bio:40,dol:60,obp:0,bvi:0},         hasDistricts:false },
+    { code:'GP',  name:'Gauteng',       confirmed:10,   suspected:4,   pending:0,   vaccinated:42000,   dosesRx:{bio:25000,dol:30000,obp:0,bvi:5000},        spoilage:{bio:0,dol:20,obp:0,bvi:0},          hasDistricts:false },
+    { code:'NC',  name:'Northern Cape', confirmed:3,    suspected:4,   pending:0,   vaccinated:26000,   dosesRx:{bio:18000,dol:20000,obp:0,bvi:2000},        spoilage:{bio:0,dol:0,obp:0,bvi:0},           hasDistricts:false },
+    { code:'WC',  name:'Western Cape',  confirmed:0,    suspected:0,   pending:0,   vaccinated:0,       dosesRx:{bio:0,dol:0,obp:0,bvi:0},                   spoilage:{bio:0,dol:0,obp:0,bvi:0},           hasDistricts:false },
+  ],
+  districts: {
+    LP: [
+      { name:'Sekhukhune', confirmed:340,suspected:180,vaccinated:280000,herd:520000, dosesRx:{bio:110000,dol:145000,obp:0,bvi:15000},dosesAdm:260000,spoilage:1200 },
+      { name:'Mopani',     confirmed:210,suspected:95, vaccinated:198000,herd:380000, dosesRx:{bio:84000,dol:112000,obp:0,bvi:12000}, dosesAdm:198000,spoilage:800  },
+      { name:'Vhembe',     confirmed:148,suspected:82, vaccinated:162000,herd:420000, dosesRx:{bio:68000,dol:92000,obp:0,bvi:10000},  dosesAdm:162000,spoilage:650  },
+      { name:'Capricorn',  confirmed:82, suspected:61, vaccinated:108000,herd:310000, dosesRx:{bio:46000,dol:62000,obp:0,bvi:7000},   dosesAdm:108000,spoilage:420  },
+      { name:'Waterberg',  confirmed:40, suspected:30, vaccinated:72000, herd:620000, dosesRx:{bio:31000,dol:42000,obp:0,bvi:5000},   dosesAdm:72000, spoilage:280  },
+    ],
+    FS: [
+      { name:'Fezile Dabi',        confirmed:148,suspected:124,vaccinated:198000,herd:680000, dosesRx:{bio:84000,dol:112000,obp:0,bvi:12000},dosesAdm:198000,spoilage:520 },
+      { name:'Lejweleputswa',      confirmed:98, suspected:82, vaccinated:142000,herd:580000, dosesRx:{bio:60000,dol:80000,obp:0,bvi:8000}, dosesAdm:142000,spoilage:380 },
+      { name:'Thabo Mofutsanyana', confirmed:62, suspected:48, vaccinated:88000, herd:720000, dosesRx:{bio:37000,dol:50000,obp:0,bvi:5000}, dosesAdm:88000, spoilage:280 },
+      { name:'Xhariep',            confirmed:22, suspected:18, vaccinated:42000, herd:480000, dosesRx:{bio:18000,dol:23000,obp:0,bvi:3000}, dosesAdm:42000, spoilage:120 },
+      { name:'Mangaung Metro',     confirmed:10, suspected:10, vaccinated:10000, herd:180000, dosesRx:{bio:5000,dol:6000,obp:0,bvi:1000},   dosesAdm:10000, spoilage:40  },
+    ],
+    EC: [
+      { name:'Joe Gqabi',  confirmed:148,suspected:64,vaccinated:165000,herd:480000, dosesRx:{bio:68000,dol:90000,obp:10000,bvi:5000},dosesAdm:165000,spoilage:620 },
+      { name:'Chris Hani', confirmed:82, suspected:36,vaccinated:122000,herd:560000, dosesRx:{bio:52000,dol:68000,obp:7000,bvi:3000}, dosesAdm:122000,spoilage:480 },
+      { name:'Alfred Nzo', confirmed:42, suspected:18,vaccinated:68000, herd:340000, dosesRx:{bio:29000,dol:38000,obp:3000,bvi:2000}, dosesAdm:68000, spoilage:220 },
+      { name:'OR Tambo',   confirmed:18, suspected:6, vaccinated:35000, herd:280000, dosesRx:{bio:15000,dol:19000,obp:0,bvi:3000},    dosesAdm:35000, spoilage:80  },
+    ],
+  },
+  prov_weekly: {
+    LP: [98,148,210,310,440,580,690,760,820],
+    FS: [62,98,140,190,240,280,310,328,340],
+    EC: [44,72,110,160,200,240,268,282,290],
+    KZN:[28,42,62,88,108,124,134,140,142],
+    MP: [12,18,28,38,48,54,58,60,61],
+    NW: [4,8,12,16,18,20,22,23,24],
+    GP: [2,4,6,8,9,10,10,10,10],
+    NC: [0,0,1,1,2,2,3,3,3],
+    WC: [0,0,0,0,0,0,0,0,0],
+  },
+  vaccines: {
+    bioaftogen: { received:1014840, administered:720000, balance:291640, spoilage:3550, stateVet:480000, privateVet:240000 },
+    dolvet:     { received:1440040, administered:1100000,balance:334920, spoilage:5080, stateVet:660000, privateVet:440000 },
+    obp:        { received:12900,   administered:8200,   balance:4580,   spoilage:120,  stateVet:8200,   privateVet:0     },
+    bvi:        { received:4978,    administered:3200,   balance:1778,   spoilage:42,   stateVet:3200,   privateVet:0     },
+  },
+  species: { cattle:2284154, sheep:62000, goats:48000, pigs:28000, buffalo:6154 },
+  tenure:  { commercial:1520000, communal:764154 },
+  ministerial: { procured:6000000, distributed:5229966, vaccinated:2590016, as_of:'23 Apr 2026' },
+  joc:         { dosesRx:3472758, vaccinated:2284154, as_of:'1 May 2026' },
+  prov_compare: [
+    { code:'LP',  name:'Limpopo',       minAlloc:1800000, jocRx:1240000, minVax:1050000, jocVax:820000 },
+    { code:'FS',  name:'Free State',    minAlloc:950000,  jocRx:680000,  minVax:590000,  jocVax:480000 },
+    { code:'EC',  name:'Eastern Cape',  minAlloc:780000,  jocRx:560000,  minVax:480000,  jocVax:390000 },
+    { code:'KZN', name:'KwaZulu-Natal', minAlloc:420000,  jocRx:320000,  minVax:280000,  jocVax:210000 },
+    { code:'MP',  name:'Mpumalanga',    minAlloc:240000,  jocRx:180000,  minVax:148000,  jocVax:120000 },
+    { code:'NW',  name:'North West',    minAlloc:180000,  jocRx:120000,  minVax:98000,   jocVax:78000  },
+    { code:'GP',  name:'Gauteng',       minAlloc:80000,   jocRx:60000,   minVax:54000,   jocVax:42000  },
+    { code:'NC',  name:'Northern Cape', minAlloc:60000,   jocRx:40000,   minVax:34000,   jocVax:26000  },
+    { code:'WC',  name:'Western Cape',  minAlloc:0,       jocRx:0,       minVax:0,       jocVax:0      },
+  ],
+  concerns: [
+    {
+      severity:'critical',
+      title:'A significant gap exists between nationally reported vaccine procurement and provincial receipts.',
+      body:'A total of 6 000 000 doses have been reported as procured nationally. Provincial Joint Operations Committee returns account for 3 472 758 doses received, a gap of 2 527 242 doses (42%). A formal reconciliation of these figures has not yet been made available. We raise this concern in the interest of programme transparency and accountability.',
+      action:'We recommend that a full logistics reconciliation be requested, covering depot holding levels, in-transit stock and provincial receipt records. This will allow for accurate programme reporting.',
+    },
+    {
+      severity:'critical',
+      title:'Limpopo herd coverage is critically low at 28.8%, despite the province carrying 45% of national confirmed cases.',
+      body:'Limpopo carries the highest confirmed case burden nationally. Only 28.8% of its cattle herd has received vaccination. The Sekhukhune and Mopani districts carry the highest case loads relative to their vaccination coverage.',
+      action:'Urgent reallocation of state veterinary capacity to Limpopo is recommended. District-level progress reporting from Sekhukhune and Mopani would assist in tracking and accelerating the response.',
+    },
+    {
+      severity:'critical',
+      title:'District-level data has not yet been received from four provinces.',
+      body:'KwaZulu-Natal, Mpumalanga, North West and Gauteng have not yet submitted district-level data breakdowns. Without this information it is not possible to accurately identify hotspot municipalities or plan a targeted provincial response.',
+      action:'We recommend that district-level data be formally requested from these provinces with a clear submission deadline. This will significantly improve the accuracy of the national picture.',
+    },
+    {
+      severity:'warning',
+      title:'Cold-chain failures have been recorded in the Free State, with spoilage incidents under investigation.',
+      body:'Three district cold chains in the Free State reported failures during the reporting period. One incident remains under investigation. This has resulted in measurable vaccine losses which reduce the effective stock available for administration.',
+      action:'A cold-chain audit of affected districts is recommended. Confirmation that spoilage disposal procedures are being followed in line with national guidelines would also be beneficial.',
+    },
+    {
+      severity:'warning',
+      title:'Only 34.4% of vaccinated animals have received a second dose nationally.',
+      body:'Nationally, 2 284 154 animals have received vaccination. Second-dose coverage remains significantly below first-dose coverage across all provinces. The gap is widest in Limpopo and the Eastern Cape. A full second dose contributes substantially to immunity duration.',
+      action:'A second-dose tracking and scheduling plan per province is recommended, prioritising districts with the longest elapsed time since first administration.',
+    },
+    {
+      severity:'warning',
+      title:'Communal herd vaccination rate remains well below commercial herd vaccination.',
+      body:'Commercial herd vaccination accounts for 66.5% of vaccinated animals nationally, with communal herds at 33.5%. Given the unique biosecurity challenges in communal farming areas, this gap presents an elevated risk of re-introduction and ongoing transmission.',
+      action:'A targeted communal vaccination strategy, coordinated through provincial extension services, is recommended to close this gap.',
+    },
+  ],
+  mpo: {
+    dairyCowsVaccinated:729692, dairyCowsAtRisk:980000,
+    confirmedFarms:171, suspectedFarms:124,
+    provinces: [
+      { code:'KZN', name:'KwaZulu-Natal', vaccinated:285000, atRisk:320000, confirmedFarms:58, suspectedFarms:42 },
+      { code:'EC',  name:'Eastern Cape',  vaccinated:195000, atRisk:240000, confirmedFarms:48, suspectedFarms:36 },
+      { code:'FS',  name:'Free State',    vaccinated:148000, atRisk:180000, confirmedFarms:32, suspectedFarms:24 },
+      { code:'LP',  name:'Limpopo',       vaccinated:68000,  atRisk:120000, confirmedFarms:22, suspectedFarms:14 },
+      { code:'MP',  name:'Mpumalanga',    vaccinated:24000,  atRisk:80000,  confirmedFarms:8,  suspectedFarms:6  },
+      { code:'GP',  name:'Gauteng',       vaccinated:9692,   atRisk:40000,  confirmedFarms:3,  suspectedFarms:2  },
+    ],
+  },
+  sources: [
+    { name:'Limpopo JOC Meeting Pack',                   type:'PDF',   effective:'8 May 2026',  ingested:'9 May 2026',  status:'ingested' },
+    { name:'Free State FMD Vaccine Data',                type:'XLSX',  effective:'24 Apr 2026', ingested:'25 Apr 2026', status:'ingested' },
+    { name:'Eastern Cape JOC Presentation',              type:'PPTX',  effective:'7 May 2026',  ingested:'8 May 2026',  status:'ingested' },
+    { name:'Minister of Agriculture Media Briefing',     type:'PDF',   effective:'5 May 2026',  ingested:'6 May 2026',  status:'ingested' },
+    { name:'MPO Weekly FMD Update',                      type:'Email', effective:'11 May 2026', ingested:'11 May 2026', status:'ingested' },
+    { name:'Western Cape Agriculture FMD Update',        type:'Image', effective:'11 May 2026', ingested:'12 May 2026', status:'partial'  },
+    { name:'ICC Report Week 9',                          type:'PDF',   effective:'8 May 2026',  ingested:'9 May 2026',  status:'ingested' },
+    { name:'Gauteng WhatsApp Update',                    type:'Image', effective:'6 May 2026',  ingested:'6 May 2026',  status:'partial'  },
+  ],
+};
+const DATA = (window.FMD_DATA || SAMPLE_DATA);
+
+/* ── Utilities ──────────────────────────────────────────────────────── */
+const fmt  = n  => n == null ? '-' : Number(n).toLocaleString('en-ZA');
+const pct  = (a,b) => b ? ((a/b)*100).toFixed(1)+'%' : '-';
+const sev  = n  => n===0?'sev-0':n<=50?'sev-1':n<=200?'sev-2':n<=500?'sev-3':'sev-4';
+const sevInfo = n => {
+  if(n===0)  return {label:'No cases', caseCol:'var(--stone)',    pillCls:'pill'};
+  if(n<=50)  return {label:'Low',      caseCol:'var(--pine)',     pillCls:'pill'};
+  if(n<=200) return {label:'Moderate', caseCol:'var(--olive)',    pillCls:'pill green'};
+  if(n<=500) return {label:'High',     caseCol:'var(--warning)',  pillCls:'pill amber'};
+  return           {label:'Critical',  caseCol:'var(--critical)', pillCls:'pill red'};
+};
+const rxTot = rx => (rx.bio||0)+(rx.dol||0)+(rx.obp||0)+(rx.bvi||0);
+const delta = (curr,prev) => {
+  const d=curr-prev, cls=d>0?'up':'down', sign=d>0?'+':'';
+  return `<span class="${cls}">${sign}${fmt(d)} vs. prev. week</span>`;
+};
+
+const PINE='#102D2D', OLIVE='#5B7E3D', SAGE='#95A495', PALE='#D7E1D1', GRASS='#A2C93C';
+const MFR_COLORS = { bio:PINE, dol:OLIVE, obp:SAGE, bvi:GRASS };
+
+let currentWeek = DATA.weeks.length - 1;
+let chartCases, chartVax, chartChannel, chartMfr, chartSpecies, chartTenure,
+    chartVaxAdm, chartAllocProv, chartVaccProv,
+    chartMpoProv, chartMpoFarms, chartProvTrend, chartProvSupply;
+
+function mkScales(yFmt) {
+  return {
+    x: { ticks:{ color:'#58595B', font:{size:11} } },
+    y: { ticks:{ color:'#58595B', font:{size:11}, callback: yFmt || (v=>v) }, grid:{ color:'#E4E6D9' } },
+  };
+}
+function mkLegend() { return { labels:{ color:PINE, font:{size:12, family:'"Acumin Pro","Inter","Calibri",sans-serif'} } }; }
+
+/* ── Week selector ──────────────────────────────────────────────────── */
+function initWeekSelector() {
+  const sel = document.getElementById('week-selector');
+  DATA.weeks.forEach((w,i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = `Week ${i+1}  —  ${w.label}`;
+    if (i===currentWeek) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+function changeWeek(idx) { currentWeek=parseInt(idx); renderOverview(); }
+
+/* ── Navigation ─────────────────────────────────────────────────────── */
+function showSection(name, btn) {
+  closeProvince();
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const s = document.getElementById('section-'+name);
+  if (s) s.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ── Overview ────────────────────────────────────────────────────────── */
+function renderOverview() {
+  const w=currentWeek, wP=Math.max(0,w-1);
+  const nat=DATA.national_weekly[w], natP=DATA.national_weekly[wP];
+  const totalHerd=Object.values(DATA.herd).reduce((a,b)=>a+b,0);
+  const scale=w/(DATA.weeks.length-1);
+
+  document.getElementById('kpi-confirmed').textContent     = fmt(nat[0]);
+  document.getElementById('kpi-confirmed-delta').innerHTML = w>0?delta(nat[0],natP[0]):'';
+  document.getElementById('kpi-suspected').textContent     = fmt(nat[1]);
+  document.getElementById('kpi-suspected-delta').innerHTML = w>0?delta(nat[1],natP[1]):'';
+  document.getElementById('kpi-doses-rx').textContent      = fmt(nat[2]);
+  document.getElementById('kpi-doses-rx-delta').innerHTML  = w>0?delta(nat[2],natP[2]):'';
+  document.getElementById('kpi-vaccinated').textContent    = fmt(nat[3]);
+  document.getElementById('kpi-vaccinated-delta').innerHTML= w>0?delta(nat[3],natP[3]):'';
+  document.getElementById('kpi-coverage').textContent      = ((nat[3]/totalHerd)*100).toFixed(1)+'%';
+  document.getElementById('kpi-balance').textContent       = fmt(nat[2]-nat[3]);
+
+  /* Province grid */
+  const grid=document.getElementById('province-grid'); grid.innerHTML='';
+  const isLatest = currentWeek === DATA.weeks.length - 1;
+  const scFactor = isLatest ? 1 : Math.max(0.05, currentWeek / (DATA.weeks.length - 1));
+  DATA.provinces.forEach(p=>{
+    const pw = DATA.prov_weekly[p.code];
+    const sc = isLatest ? p.confirmed : (pw?.[w] ?? 0);
+    const herd=DATA.herd[p.code]||1;
+    const scV  = isLatest ? p.vaccinated : Math.round(p.vaccinated*scFactor);
+    const cov=scV>0?(scV/herd*100):0;
+    const card=document.createElement('div');
+    const si=sevInfo(sc);
+    card.className=`province-card ${sev(sc)}`;
+    card.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div class="province-code">${p.code}</div>
+        <span class="${si.pillCls}">${si.label}</span>
+      </div>
+      <div class="province-name">${p.name}</div>
+      <div class="province-cases" style="color:${si.caseCol}">${sc>0||isLatest?fmt(sc):'—'}</div>
+      <div class="province-cases-label">confirmed cases</div>
+      <div class="province-bar-wrap"><div class="province-bar ${cov<10?'low':''}" style="width:${Math.min(cov,100).toFixed(1)}%"></div></div>
+      <div class="province-coverage">${cov.toFixed(1)}% herd coverage</div>
+      <div class="province-drill-hint">${p.hasDistricts?'View districts >':'View summary >'}</div>
+    `;
+    card.addEventListener('click',()=>openProvince(p.code));
+    grid.appendChild(card);
+  });
+
+  /* Province table */
+  const tbody=document.getElementById('province-table-body'); tbody.innerHTML='';
+  let tConf=0,tSusp=0,tPend=0,tRx=0,tVax=0,tHerd=0;
+  DATA.provinces.forEach(p=>{
+    const herd=DATA.herd[p.code]||1;
+    const pw = DATA.prov_weekly[p.code];
+    const sc   = isLatest ? p.confirmed : (pw?.[w] ?? 0);
+    const scS  = isLatest ? p.suspected  : Math.round(p.suspected*scFactor);
+    const scP  = isLatest ? p.pending    : Math.round(p.pending*scFactor);
+    const scRx = isLatest ? rxTot(p.dosesRx) : Math.round(rxTot(p.dosesRx)*scFactor);
+    const scV  = isLatest ? p.vaccinated : Math.round(p.vaccinated*scFactor);
+    const cov  = (scV/herd*100).toFixed(1);
+    tConf+=sc; tSusp+=scS; tPend+=scP; tRx+=scRx; tVax+=scV; tHerd+=herd;
+    tbody.innerHTML+=`<tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${sc>0||isLatest?fmt(sc):'—'}</td><td>${fmt(scS)}</td><td>${fmt(scP)}</td>
+      <td>${fmt(scRx)}</td><td>${fmt(scV)}</td><td>${fmt(herd)}</td><td>${cov}%</td>
+    </tr>`;
+  });
+  tbody.innerHTML+=`<tr class="total-row">
+    <td>National total</td>
+    <td>${fmt(tConf)}</td><td>${fmt(tSusp)}</td><td>${fmt(tPend)}</td>
+    <td>${fmt(tRx)}</td><td>${fmt(tVax)}</td><td>${fmt(tHerd)}</td>
+    <td>${(tVax/tHerd*100).toFixed(1)}%</td>
+  </tr>`;
+}
+
+/* ── Charts ──────────────────────────────────────────────────────────── */
+function initCharts() {
+  const labels=DATA.weeks.map(w=>w.label.substring(0,6));
+  const kM = v=>(v/1000000).toFixed(1)+'M';
+  const kK = v=>(v/1000).toFixed(0)+'k';
+
+  chartCases = new Chart(document.getElementById('chart-cases'),{
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'Confirmed',data:DATA.national_weekly.map(r=>r[0]),borderColor:'#B94040',backgroundColor:'rgba(185,64,64,.07)',tension:.35,fill:true,pointRadius:3},
+      {label:'Suspected',data:DATA.national_weekly.map(r=>r[1]),borderColor:'#C97A22',backgroundColor:'rgba(201,122,34,.05)',tension:.35,fill:true,pointRadius:3,borderDash:[4,3]},
+    ]},
+    options:{plugins:{legend:mkLegend()},scales:mkScales()},
+  });
+
+  chartVax = new Chart(document.getElementById('chart-vax'),{
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'Doses received',data:DATA.national_weekly.map(r=>r[2]),borderColor:PINE,tension:.35,fill:false,pointRadius:3},
+      {label:'Animals vaccinated',data:DATA.national_weekly.map(r=>r[3]),borderColor:OLIVE,backgroundColor:'rgba(91,126,61,.1)',tension:.35,fill:true,pointRadius:3},
+    ]},
+    options:{plugins:{legend:mkLegend()},scales:mkScales(kM)},
+  });
+
+  const v=DATA.vaccines;
+  chartChannel = new Chart(document.getElementById('chart-channel'),{
+    type:'bar',
+    data:{ labels:['Bioaftogen','Dolvet','OBP / ARC','BVI'], datasets:[
+      {label:'State vet',   data:[v.bioaftogen.stateVet,v.dolvet.stateVet,v.obp.stateVet,v.bvi.stateVet],   backgroundColor:PINE},
+      {label:'Private vet', data:[v.bioaftogen.privateVet,v.dolvet.privateVet,v.obp.privateVet,v.bvi.privateVet], backgroundColor:OLIVE},
+    ]},
+    options:{plugins:{legend:mkLegend()},scales:{x:{stacked:true,ticks:{color:'#58595B',font:{size:11}}},y:{stacked:true,ticks:{color:'#58595B',font:{size:11},callback:kK},grid:{color:'#E4E6D9'}}}},
+  });
+
+  chartMfr = new Chart(document.getElementById('chart-mfr'),{
+    type:'doughnut',
+    data:{ labels:['Bioaftogen','Dolvet','OBP / ARC','BVI'],
+      datasets:[{data:[v.bioaftogen.received,v.dolvet.received,v.obp.received,v.bvi.received],backgroundColor:[PINE,OLIVE,SAGE,GRASS],borderWidth:2,borderColor:'#F6F7F3'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:PINE,font:{size:12}}}}},
+  });
+
+  const sp=DATA.species;
+  chartSpecies = new Chart(document.getElementById('chart-species'),{
+    type:'bar',
+    data:{ labels:['Cattle','Sheep','Goats','Pigs','Buffalo'],
+      datasets:[{label:'Animals vaccinated',data:[sp.cattle,sp.sheep,sp.goats,sp.pigs,sp.buffalo],backgroundColor:[PINE,OLIVE,SAGE,PALE,'#B94040']}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#58595B',font:{size:11},callback:kK},grid:{color:'#E4E6D9'}},y:{ticks:{color:'#58595B',font:{size:11}}}}},
+  });
+
+  chartTenure = new Chart(document.getElementById('chart-tenure'),{
+    type:'doughnut',
+    data:{ labels:['Commercial','Communal'],
+      datasets:[{data:[DATA.tenure.commercial,DATA.tenure.communal],backgroundColor:[PINE,OLIVE],borderWidth:2,borderColor:'#F6F7F3'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:PINE,font:{size:12}}}}},
+  });
+
+  /* Animals vaccinated vs doses administered */
+  chartVaxAdm = new Chart(document.getElementById('chart-vax-adm'),{
+    type:'bar',
+    data:{
+      labels:DATA.provinces.map(p=>p.code),
+      datasets:[
+        {label:'Doses administered',data:DATA.provinces.map(p=>Math.round(rxTot(p.dosesRx)*0.72)),backgroundColor:PINE},
+        {label:'Animals vaccinated', data:DATA.provinces.map(p=>p.vaccinated),backgroundColor:OLIVE},
+      ]
+    },
+    options:{plugins:{legend:mkLegend()},scales:mkScales(kK)},
+  });
+
+  /* Min vs JOC — allocation by province */
+  chartAllocProv = new Chart(document.getElementById('chart-alloc-prov'),{
+    type:'bar',
+    data:{
+      labels:DATA.prov_compare.map(p=>p.name),
+      datasets:[
+        {label:'Min. allocation',    data:DATA.prov_compare.map(p=>p.minAlloc), backgroundColor:PINE},
+        {label:'JOC confirmed',      data:DATA.prov_compare.map(p=>p.jocRx),   backgroundColor:OLIVE},
+      ]
+    },
+    options:{indexAxis:'y',plugins:{legend:mkLegend()},scales:{x:{ticks:{color:'#58595B',font:{size:11},callback:kK},grid:{color:'#E4E6D9'}},y:{ticks:{color:'#58595B',font:{size:10}}}}},
+  });
+
+  /* Min vs JOC — animals vaccinated by province */
+  chartVaccProv = new Chart(document.getElementById('chart-vacc-prov'),{
+    type:'bar',
+    data:{
+      labels:DATA.prov_compare.map(p=>p.name),
+      datasets:[
+        {label:'Min. animals vaccinated', data:DATA.prov_compare.map(p=>p.minVax), backgroundColor:PINE},
+        {label:'JOC animals vaccinated',  data:DATA.prov_compare.map(p=>p.jocVax), backgroundColor:OLIVE},
+      ]
+    },
+    options:{indexAxis:'y',plugins:{legend:mkLegend()},scales:{x:{ticks:{color:'#58595B',font:{size:11},callback:kK},grid:{color:'#E4E6D9'}},y:{ticks:{color:'#58595B',font:{size:10}}}}},
+  });
+
+  /* MPO */
+  const mp=DATA.mpo.provinces;
+  chartMpoProv = new Chart(document.getElementById('chart-mpo-prov'),{
+    type:'bar',
+    data:{ labels:mp.map(p=>p.name), datasets:[{label:'Dairy cows vaccinated',data:mp.map(p=>p.vaccinated),backgroundColor:PINE}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#58595B',font:{size:11},callback:kK},grid:{color:'#E4E6D9'}},y:{ticks:{color:'#58595B',font:{size:11}}}}},
+  });
+  chartMpoFarms = new Chart(document.getElementById('chart-mpo-farms'),{
+    type:'bar',
+    data:{ labels:mp.map(p=>p.name), datasets:[
+      {label:'Confirmed positive farms',data:mp.map(p=>p.confirmedFarms),backgroundColor:'#B94040'},
+      {label:'Suspected farms',         data:mp.map(p=>p.suspectedFarms),backgroundColor:'#C97A22'},
+    ]},
+    options:{indexAxis:'y',plugins:{legend:mkLegend()},scales:{x:{ticks:{color:'#58595B',font:{size:11}},grid:{color:'#E4E6D9'}},y:{ticks:{color:'#58595B',font:{size:11}}}}},
+  });
+}
+
+/* ── Vaccines section ────────────────────────────────────────────────── */
+function renderVaccines() {
+  const mkCard=(key,elId)=>{
+    const v=DATA.vaccines[key];
+    const rate=v.received>0?((v.spoilage/v.received)*100).toFixed(3):'0.000';
+    const pA=v.received>0?(v.administered/v.received*100).toFixed(0):0;
+    const pB=v.received>0?(v.balance/v.received*100).toFixed(0):0;
+    document.getElementById(elId).innerHTML=`
+      <div class="prog-row"><div class="prog-label text-sm">Received</div><div class="prog-wrap"><div class="prog-fill" style="width:100%"></div></div><div class="prog-pct">${fmt(v.received)}</div></div>
+      <div class="prog-row"><div class="prog-label text-sm">Administered</div><div class="prog-wrap"><div class="prog-fill" style="width:${pA}%"></div></div><div class="prog-pct">${fmt(v.administered)}</div></div>
+      <div class="prog-row"><div class="prog-label text-sm">Balance</div><div class="prog-wrap"><div class="prog-fill" style="width:${pB}%;background:var(--sage)"></div></div><div class="prog-pct">${fmt(v.balance)}</div></div>
+      <div style="font-size:13px;color:var(--charcoal);margin-top:10px;padding-top:10px;border-top:1px solid var(--mist);">Spoilage: <strong style="color:${parseFloat(rate)>0.5?'var(--critical)':'inherit'}">${fmt(v.spoilage)} doses (${rate}%)</strong></div>
+    `;
+  };
+  mkCard('bioaftogen','vax-bioaftogen');
+  mkCard('dolvet','vax-dolvet');
+  mkCard('obp','vax-obp');
+  mkCard('bvi','vax-bvi');
+
+  /* Coverage bars */
+  const bars=document.getElementById('prov-coverage-bars'); bars.innerHTML='';
+  DATA.provinces.forEach(p=>{
+    const cov=p.vaccinated>0?(p.vaccinated/DATA.herd[p.code]*100).toFixed(1):'0.0';
+    const fill=parseFloat(cov)<20?'var(--critical)':parseFloat(cov)<50?'var(--warning)':'var(--olive)';
+    bars.innerHTML+=`<div class="prog-row"><div class="prog-label text-sm">${p.name}</div><div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(parseFloat(cov),100)}%;background:${fill}"></div></div><div class="prog-pct">${cov}%</div></div>`;
+  });
+
+  /* Spoilage table with per-manufacturer rates */
+  const sb=document.getElementById('spoilage-body'); sb.innerHTML='';
+  let tBioS=0,tDolS=0,tObpS=0,tBviS=0,tBioRx=0,tDolRx=0,tObpRx=0,tBviRx=0;
+  DATA.provinces.forEach(p=>{
+    const s=p.spoilage, rx=p.dosesRx;
+    const tot=(s.bio||0)+(s.dol||0)+(s.obp||0)+(s.bvi||0);
+    const totRx=rxTot(rx);
+    const bioR=rx.bio>0?((s.bio/rx.bio)*100).toFixed(3):'0.000';
+    const dolR=rx.dol>0?((s.dol/rx.dol)*100).toFixed(3):'0.000';
+    const obpR=rx.obp>0?((s.obp/rx.obp)*100).toFixed(3):'0.000';
+    const bviR=rx.bvi>0?((s.bvi/rx.bvi)*100).toFixed(3):'0.000';
+    const ovR =totRx>0?((tot/totRx)*100).toFixed(3):'0.000';
+    const status=parseFloat(ovR)>1?'<span class="pill red">Critical</span>':parseFloat(ovR)>0.5?'<span class="pill amber">Monitor</span>':'<span class="pill green">Acceptable</span>';
+    tBioS+=s.bio||0; tDolS+=s.dol||0; tObpS+=s.obp||0; tBviS+=s.bvi||0;
+    tBioRx+=rx.bio||0; tDolRx+=rx.dol||0; tObpRx+=rx.obp||0; tBviRx+=rx.bvi||0;
+    sb.innerHTML+=`<tr>
+      <td>${p.name}</td>
+      <td>${fmt(s.bio)}</td><td>${bioR}%</td>
+      <td>${fmt(s.dol)}</td><td>${dolR}%</td>
+      <td>${fmt(s.obp)}</td><td>${obpR}%</td>
+      <td>${fmt(s.bvi)}</td><td>${bviR}%</td>
+      <td>${fmt(tot)}</td><td>${ovR}%</td><td>${status}</td>
+    </tr>`;
+  });
+  const tTot=tBioS+tDolS+tObpS+tBviS, tRxTot=tBioRx+tDolRx+tObpRx+tBviRx;
+  sb.innerHTML+=`<tr class="total-row">
+    <td>National total</td>
+    <td>${fmt(tBioS)}</td><td>${tBioRx>0?((tBioS/tBioRx)*100).toFixed(3)+'%':'-'}</td>
+    <td>${fmt(tDolS)}</td><td>${tDolRx>0?((tDolS/tDolRx)*100).toFixed(3)+'%':'-'}</td>
+    <td>${fmt(tObpS)}</td><td>${tObpRx>0?((tObpS/tObpRx)*100).toFixed(3)+'%':'-'}</td>
+    <td>${fmt(tBviS)}</td><td>${tBviRx>0?((tBviS/tBviRx)*100).toFixed(3)+'%':'-'}</td>
+    <td>${fmt(tTot)}</td><td>${tRxTot>0?((tTot/tRxTot)*100).toFixed(3)+'%':'-'}</td><td></td>
+  </tr>`;
+}
+
+/* ── Minister vs JOC ─────────────────────────────────────────────────── */
+function renderMinisterial() {
+  const min=DATA.ministerial, joc=DATA.joc;
+  /* Headline */
+  const rows=[
+    {metric:'Doses procured / received at provincial level',minVal:min.procured,   jocVal:joc.dosesRx,  minDate:min.as_of,jocDate:joc.as_of},
+    {metric:'Doses distributed',                            minVal:min.distributed,jocVal:joc.dosesRx,  minDate:min.as_of,jocDate:joc.as_of},
+    {metric:'Animals vaccinated',                           minVal:min.vaccinated, jocVal:joc.vaccinated,minDate:min.as_of,jocDate:joc.as_of},
+  ];
+  const tb=document.getElementById('compare-body'); tb.innerHTML='';
+  rows.forEach(r=>{
+    const diff=r.minVal-r.jocVal, gap=Math.abs(diff)/r.minVal>0.05;
+    const pD=((Math.abs(diff)/r.minVal)*100).toFixed(1);
+    tb.innerHTML+=`<tr>
+      <td>${r.metric}</td>
+      <td>${fmt(r.minVal)}<br><span class="text-sm text-stone">as at ${r.minDate}</span></td>
+      <td>${fmt(r.jocVal)}<br><span class="text-sm text-stone">as at ${r.jocDate}</span></td>
+      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)} (${pD}%)</td>
+      <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
+    </tr>`;
+  });
+
+  /* Allocation table with total row */
+  const ab=document.getElementById('alloc-compare-body'); ab.innerHTML='';
+  let tMinA=0, tJocA=0;
+  DATA.prov_compare.forEach(p=>{
+    const diff=p.minAlloc-p.jocRx, gap=p.minAlloc>0&&Math.abs(diff)/p.minAlloc>0.05;
+    tMinA+=p.minAlloc; tJocA+=p.jocRx;
+    ab.innerHTML+=`<tr>
+      <td>${p.name}</td><td>${fmt(p.minAlloc)}</td><td>${fmt(p.jocRx)}</td>
+      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)}</td>
+      <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
+    </tr>`;
+  });
+  const tDiffA=tMinA-tJocA;
+  ab.innerHTML+=`<tr class="total-row"><td>National total</td><td>${fmt(tMinA)}</td><td>${fmt(tJocA)}</td><td class="discrepancy">${tDiffA>0?'+':''}${fmt(tDiffA)}</td><td></td></tr>`;
+
+  /* Animals vaccinated table with total row */
+  const vb=document.getElementById('vacc-compare-body'); vb.innerHTML='';
+  let tMinV=0, tJocV=0;
+  DATA.prov_compare.forEach(p=>{
+    const diff=p.minVax-p.jocVax, gap=p.minVax>0&&Math.abs(diff)/p.minVax>0.05;
+    tMinV+=p.minVax; tJocV+=p.jocVax;
+    vb.innerHTML+=`<tr>
+      <td>${p.name}</td><td>${fmt(p.minVax)}</td><td>${fmt(p.jocVax)}</td>
+      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)}</td>
+      <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
+    </tr>`;
+  });
+  const tDiffV=tMinV-tJocV;
+  vb.innerHTML+=`<tr class="total-row"><td>National total</td><td>${fmt(tMinV)}</td><td>${fmt(tJocV)}</td><td class="discrepancy">${tDiffV>0?'+':''}${fmt(tDiffV)}</td><td></td></tr>`;
+}
+
+/* ── Concerns ────────────────────────────────────────────────────────── */
+function renderConcerns() {
+  let crit=0, warn=0;
+  const list=document.getElementById('concerns-list'); list.innerHTML='';
+  DATA.concerns.forEach(c=>{
+    if(c.severity==='critical') crit++; else if(c.severity==='warning') warn++;
+    list.innerHTML+=`
+      <div class="concern-card">
+        <div class="concern-header ${c.severity}">
+          <span class="concern-badge ${c.severity}">${c.severity==='critical'?'Critical':'Warning'}</span>
+          <span class="concern-header-label">Identified — week of ${DATA.weeks[currentWeek].label}</span>
+        </div>
+        <div class="concern-body">
+          <div class="concern-title">${c.title}</div>
+          <div class="concern-text">${c.body}</div>
+          <div class="concern-action"><strong>Recommended action.</strong> ${c.action}</div>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('count-critical').textContent=crit;
+  document.getElementById('count-warning').textContent=warn;
+  document.getElementById('count-resolved').textContent=1;
+}
+
+/* ── MPO ─────────────────────────────────────────────────────────────── */
+function renderMpo() {
+  const m=DATA.mpo;
+  document.getElementById('mpo-confirmed-farms').textContent=fmt(m.confirmedFarms);
+  document.getElementById('mpo-active-farms').textContent   =fmt(m.suspectedFarms);
+  document.getElementById('mpo-vaccinated').textContent     =fmt(m.dairyCowsVaccinated);
+  document.getElementById('mpo-at-risk').textContent        =fmt(m.dairyCowsAtRisk);
+  const tb=document.getElementById('mpo-table-body'); tb.innerHTML='';
+  let tV=0,tR=0,tCF=0,tSF=0;
+  m.provinces.forEach(p=>{
+    const cov=((p.vaccinated/p.atRisk)*100).toFixed(1);
+    tV+=p.vaccinated; tR+=p.atRisk; tCF+=p.confirmedFarms; tSF+=p.suspectedFarms;
+    tb.innerHTML+=`<tr>
+      <td>${p.name}</td><td>${fmt(p.vaccinated)}</td><td>${fmt(p.atRisk)}</td><td>${cov}%</td>
+      <td>${p.confirmedFarms}</td><td>${p.suspectedFarms}</td>
+      <td><span class="pill ${p.suspectedFarms>30?'red':p.suspectedFarms>10?'amber':'green'}">${p.suspectedFarms>0?'Suspected active':'Clear'}</span></td>
+    </tr>`;
+  });
+  tb.innerHTML+=`<tr class="total-row">
+    <td>National total</td><td>${fmt(tV)}</td><td>${fmt(tR)}</td><td>${(tV/tR*100).toFixed(1)}%</td>
+    <td>${fmt(tCF)}</td><td>${fmt(tSF)}</td><td></td>
+  </tr>`;
+}
+
+/* ── Sources ─────────────────────────────────────────────────────────── */
+function renderSources() {
+  const tb=document.getElementById('sources-body'); tb.innerHTML='';
+  DATA.sources.forEach(s=>{
+    const sp=s.status==='ingested'?'<span class="pill green">Ingested</span>':'<span class="pill amber">Partial</span>';
+    tb.innerHTML+=`<tr><td>${s.name}</td><td><span class="pill">${s.type}</span></td><td>${s.effective}</td><td>${s.ingested}</td><td>${sp}</td></tr>`;
+  });
+}
+
+/* ── Province drill-down ─────────────────────────────────────────────── */
+function openProvince(code) {
+  const p=DATA.provinces.find(x=>x.code===code); if(!p) return;
+  /* Show province section, hide overview */
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-province').classList.add('active');
+
+  const herd=DATA.herd[code]||1;
+  const cov=((p.vaccinated/herd)*100).toFixed(1);
+  const totalRx=rxTot(p.dosesRx);
+
+  document.getElementById('province-hero-panel').innerHTML=`
+    <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);margin-bottom:8px;">Province — as at ${DATA.weeks[currentWeek].label}</div>
+    <h2>${p.name}.</h2>
+    <div class="province-hero-sub">${p.hasDistricts?'District municipality breakdown available below.':'District-level data not yet received from this province.'}</div>
+    <div class="hero-kpis">
+      <div class="hero-kpi"><div class="val">${fmt(p.confirmed)}</div><div class="lbl">Confirmed cases</div></div>
+      <div class="hero-kpi"><div class="val">${fmt(p.suspected)}</div><div class="lbl">Suspected cases</div></div>
+      <div class="hero-kpi"><div class="val">${fmt(p.vaccinated)}</div><div class="lbl">Animals vaccinated</div></div>
+      <div class="hero-kpi"><div class="val">${fmt(totalRx)}</div><div class="lbl">Doses received</div></div>
+      <div class="hero-kpi"><div class="val">${cov}%</div><div class="lbl">Herd coverage</div></div>
+      <div class="hero-kpi"><div class="val">${fmt(herd)}</div><div class="lbl">Cattle herd size</div></div>
+    </div>
+  `;
+
+  /* Trend chart */
+  document.getElementById('prov-trend-title').textContent=`${p.name} — confirmed cases over time.`;
+  if(chartProvTrend){chartProvTrend.destroy();chartProvTrend=null;}
+  chartProvTrend=new Chart(document.getElementById('chart-prov-trend'),{
+    type:'line',
+    data:{labels:DATA.weeks.map(w=>w.label.substring(0,6)),datasets:[
+      {label:'Confirmed cases',data:DATA.prov_weekly[code]||[],borderColor:'#B94040',backgroundColor:'rgba(185,64,64,.08)',tension:.35,fill:true,pointRadius:3}
+    ]},
+    options:{plugins:{legend:{display:false}},scales:mkScales()},
+  });
+
+  /* Supply chart */
+  const districts=DATA.districts[code];
+  const supplyCanvas=document.getElementById('chart-prov-supply');
+  if(chartProvSupply){chartProvSupply.destroy();chartProvSupply=null;}
+
+  if(districts){
+    const dLabels=districts.map(d=>d.name);
+    const anyDistRx=districts.some(d=>(d.dosesRx.bio||0)+(d.dosesRx.dol||0)+(d.dosesRx.obp||0)+(d.dosesRx.bvi||0)>0);
+    if(anyDistRx){
+      chartProvSupply=new Chart(supplyCanvas,{
+        type:'bar',
+        data:{labels:dLabels, datasets:[
+          {label:'Bio received',   data:districts.map(d=>d.dosesRx.bio), backgroundColor:PINE,  stack:'rx'},
+          {label:'Dolvet received',data:districts.map(d=>d.dosesRx.dol), backgroundColor:OLIVE, stack:'rx'},
+          {label:'OBP received',   data:districts.map(d=>d.dosesRx.obp), backgroundColor:SAGE,  stack:'rx'},
+          {label:'BVI received',   data:districts.map(d=>d.dosesRx.bvi), backgroundColor:GRASS, stack:'rx'},
+          {label:'Administered',   data:districts.map(d=>d.dosesAdm),    backgroundColor:'rgba(185,64,64,.75)', stack:'adm'},
+        ]},
+        options:{plugins:{legend:mkLegend()},scales:{x:{ticks:{color:'#58595B',font:{size:10}}},y:{ticks:{color:'#58595B',font:{size:11},callback:v=>(v/1000).toFixed(0)+'k'},grid:{color:'#E4E6D9'}}}},
+      });
+    } else {
+      chartProvSupply=new Chart(supplyCanvas,{
+        type:'bar',
+        data:{labels:dLabels, datasets:[
+          {label:'Animals vaccinated',data:districts.map(d=>d.dosesAdm),backgroundColor:PINE},
+        ]},
+        options:{plugins:{legend:{display:false},title:{display:true,text:`Province total doses received: ${fmt(totalRx)} — per-district received data not yet available`,color:'#58595B',font:{size:11,family:'"Acumin Pro","Inter","Calibri",sans-serif'}}},scales:{x:{ticks:{color:'#58595B',font:{size:10}}},y:{ticks:{color:'#58595B',font:{size:11},callback:v=>(v/1000).toFixed(0)+'k'},grid:{color:'#E4E6D9'}}}},
+      });
+    }
+
+    /* District table */
+    let dRows='', tDConf=0,tDSusp=0,tDVax=0,tDRx=0,tDAdm=0,tDSpill=0,tDHerd=0;
+    districts.forEach(d=>{
+      const drx=rxTot(d.dosesRx);
+      const bal=drx>0?(drx-d.dosesAdm-(d.spoilage||0)):null;
+      const cov=d.herd>0?((d.vaccinated/d.herd)*100).toFixed(1)+'%':'—';
+      tDConf+=d.confirmed; tDSusp+=d.suspected; tDVax+=d.vaccinated;
+      tDRx+=drx; tDAdm+=d.dosesAdm; tDSpill+=(d.spoilage||0); tDHerd+=d.herd;
+      dRows+=`<tr>
+        <td><strong>${d.name}</strong></td>
+        <td>${fmt(d.confirmed)}</td><td>${fmt(d.suspected)}</td><td>${fmt(d.vaccinated)}</td>
+        <td>${drx>0?fmt(drx):'—'}</td><td>${d.dosesAdm>0?fmt(d.dosesAdm):'—'}</td>
+        <td>${bal!=null?fmt(bal):'—'}</td><td>${fmt(d.spoilage||0)}</td><td>${cov}</td>
+      </tr>`;
+    });
+    const totCov=tDHerd>0?(tDVax/tDHerd*100).toFixed(1)+'%':'—';
+    const totRxD=tDRx>0?fmt(tDRx):'—';
+    const totAdmD=tDAdm>0?fmt(tDAdm):'—';
+    const totBal=tDRx>0?fmt(tDRx-tDAdm-tDSpill):'—';
+    document.getElementById('district-table-wrap').innerHTML=`
+      <div class="card-kicker">District municipality breakdown</div>
+      <div class="card-title">${p.name} — district detail.</div>
+      <div style="overflow-x:auto;"><table>
+        <thead><tr>
+          <th>District</th><th>Confirmed</th><th>Suspected</th><th>Animals vaccinated</th>
+          <th>Doses received</th><th>Doses administered</th><th>Vaccine balance</th><th>Spoilage</th><th>Coverage</th>
+        </tr></thead>
+        <tbody>
+          ${dRows}
+          <tr class="total-row">
+            <td>Provincial total</td>
+            <td>${fmt(tDConf)}</td><td>${fmt(tDSusp)}</td><td>${fmt(tDVax)}</td>
+            <td>${totRxD}</td><td>${totAdmD}</td><td>${totBal}</td><td>${fmt(tDSpill)}</td>
+            <td>${totCov}</td>
+          </tr>
+        </tbody>
+      </table></div>
+    `;
+  } else {
+    supplyCanvas.style.display='none';
+    document.getElementById('district-table-wrap').innerHTML=`
+      <div class="card-kicker">District municipality breakdown</div>
+      <div class="card-title">${p.name}.</div>
+      <div class="no-data-note">
+        <div class="no-data-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <strong>No district-level data is available for ${p.name} at this time.</strong><br><br>
+        We have requested a detailed district breakdown from the ${p.name} provincial office. This section will be updated once district-level data is received.
+      </div>
+    `;
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function closeProvince() {
+  const sec=document.getElementById('section-province');
+  if(sec) sec.classList.remove('active');
+  const sc=document.getElementById('chart-prov-supply');
+  if(sc) sc.style.display='';
+  if(chartProvTrend){chartProvTrend.destroy();chartProvTrend=null;}
+  if(chartProvSupply){chartProvSupply.destroy();chartProvSupply=null;}
+  /* Restore overview */
+  document.getElementById('section-overview').classList.add('active');
+  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+}
+
+/* ── Init ────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',()=>{
+  initWeekSelector();
+  renderOverview();
+  initCharts();
+  renderVaccines();
+  renderMinisterial();
+  renderConcerns();
+  renderMpo();
+  renderSources();
+});
+</script>
+</body>
+</html>
