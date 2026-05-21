@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-21T10:57:14.660835
-// Version:   21
+// Generated: 2026-05-21T10:59:02.007406
+// Version:   22
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-21T10:57:14.660835",
-    "version": 21
+    "generated": "2026-05-21T10:59:02.007406",
+    "version": 22
   },
   "weeks": [
     {
@@ -260,8 +260,8 @@ window.FMD_DATA = {
     {
       "code": "GP",
       "name": "Gauteng",
-      "confirmed": 272,
-      "suspected": 0,
+      "confirmed": 294,
+      "suspected": 2,
       "pending": 0,
       "vaccinated": 244790,
       "dosesRx": {
@@ -896,7 +896,7 @@ window.FMD_DATA = {
       262,
       293,
       272,
-      272,
+      294,
       0
     ],
     "NC": [
@@ -1613,8 +1613,8 @@ window.FMD_DATA = {
       "type": "Provincial JOC meeting minutes",
       "effective": "8 May 2026",
       "ingested": "21 May 2026",
-      "status": "reviewed — procedural content only, no data applied",
-      "notes": "FMD Updates section (item 6) is image-embedded in the Word document — no numeric data extractable. Genuinely procedural for our purposes."
+      "status": "ingested",
+      "notes": "conf=294 (291 open + 3 closed), susp=2. Vax ~244,800 (Biogenesis 115,677 + OBP 127,580). Controlled slaughter: 231,244. Total allocation ~520,000. New outbreak in Lesedi District on 7 May. FMD Updates section was plain-text content inside antiword table cells — required full text scan to locate."
     }
   ]
 };
