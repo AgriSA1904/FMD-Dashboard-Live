@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-21T10:50:31.590632
-// Version:   20
+// Generated: 2026-05-21T10:57:14.660835
+// Version:   21
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-21T10:50:31.590632",
-    "version": 20
+    "generated": "2026-05-21T10:57:14.660835",
+    "version": 21
   },
   "weeks": [
     {
@@ -218,10 +218,10 @@ window.FMD_DATA = {
     {
       "code": "MP",
       "name": "Mpumalanga",
-      "confirmed": 190,
+      "confirmed": 231,
       "suspected": 104,
       "pending": 0,
-      "vaccinated": 262986,
+      "vaccinated": 312866,
       "dosesRx": {
         "bio": 100020,
         "dol": 95000,
@@ -234,12 +234,12 @@ window.FMD_DATA = {
         "obp": 0,
         "bvi": 2
       },
-      "hasDistricts": false
+      "hasDistricts": true
     },
     {
       "code": "NW",
       "name": "North West",
-      "confirmed": 304,
+      "confirmed": 332,
       "suspected": 0,
       "pending": 0,
       "vaccinated": 256731,
@@ -255,7 +255,7 @@ window.FMD_DATA = {
         "obp": 0,
         "bvi": 0
       },
-      "hasDistricts": false
+      "hasDistricts": true
     },
     {
       "code": "GP",
@@ -689,6 +689,115 @@ window.FMD_DATA = {
         "dosesAdm": 66622,
         "spoilage": 0
       }
+    ],
+    "MP": [
+      {
+        "name": "Ehlanzeni",
+        "confirmed": 24,
+        "suspected": 12,
+        "vaccinated": 96387,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 96387,
+        "spoilage": 0
+      },
+      {
+        "name": "Gert Sibande",
+        "confirmed": 137,
+        "suspected": 78,
+        "vaccinated": 132600,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 132600,
+        "spoilage": 0
+      },
+      {
+        "name": "Nkangala",
+        "confirmed": 70,
+        "suspected": 31,
+        "vaccinated": 83879,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 83879,
+        "spoilage": 0
+      }
+    ],
+    "NW": [
+      {
+        "name": "Bojanala Platinum",
+        "confirmed": 76,
+        "suspected": 0,
+        "vaccinated": 0,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 0,
+        "spoilage": 0
+      },
+      {
+        "name": "Dr Kenneth Kaunda",
+        "confirmed": 85,
+        "suspected": 0,
+        "vaccinated": 0,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 0,
+        "spoilage": 0
+      },
+      {
+        "name": "Dr Ruth Segomotsi Mompati",
+        "confirmed": 100,
+        "suspected": 0,
+        "vaccinated": 0,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 0,
+        "spoilage": 0
+      },
+      {
+        "name": "Ngaka Modiri Molema",
+        "confirmed": 71,
+        "suspected": 0,
+        "vaccinated": 0,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 0,
+        "spoilage": 0
+      }
     ]
   },
   "prov_weekly": {
@@ -759,7 +868,7 @@ window.FMD_DATA = {
       203,
       61,
       190,
-      190,
+      231,
       0
     ],
     "NW": [
@@ -773,7 +882,7 @@ window.FMD_DATA = {
       286,
       24,
       304,
-      304,
+      332,
       0
     ],
     "GP": [
@@ -913,8 +1022,8 @@ window.FMD_DATA = {
       "name": "Mpumalanga",
       "minAlloc": 341020,
       "jocRx": 435736,
-      "minVax": 262986,
-      "jocVax": 262986
+      "minVax": 312866,
+      "jocVax": 312866
     },
     {
       "code": "NW",
@@ -1488,22 +1597,24 @@ window.FMD_DATA = {
       "type": "Provincial FMD presentation (PPTX)",
       "effective": "17 May 2026",
       "ingested": "21 May 2026",
-      "status": "reviewed — data tables image-only, not extractable; provincial total not applied"
+      "status": "ingested",
+      "notes": "Province conf=231, susp=104, vax=312,866. 3 districts added. PPTX table shapes extracted via python-pptx."
     },
     {
       "name": "North West RPO JIC FMD Update — 19 May 2026",
       "type": "RPO JIC FMD update (PDF)",
       "effective": "19 May 2026",
       "ingested": "21 May 2026",
-      "status": "reviewed — vaccine usage data noted; confirmed total not stated, not applied",
-      "notes": "19 new cases reported in week of 11-15 May. Total allocation 176,000; 171,561 used (98%)."
+      "status": "ingested",
+      "notes": "Province conf=332 from cumulative cases table (15 May). 4 district municipalities added. Vaccination retained from PC 8 May."
     },
     {
       "name": "Gauteng JOC FMD Outbreak Minutes — 8 May 2026",
       "type": "Provincial JOC meeting minutes",
       "effective": "8 May 2026",
       "ingested": "21 May 2026",
-      "status": "reviewed — procedural content only, no data applied"
+      "status": "reviewed — procedural content only, no data applied",
+      "notes": "FMD Updates section (item 6) is image-embedded in the Word document — no numeric data extractable. Genuinely procedural for our purposes."
     }
   ]
 };
