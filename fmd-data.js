@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-15T14:12:57.397291
-// Version:   16
+// Generated: 2026-05-21T10:50:31.590632
+// Version:   20
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-15T14:12:57.397291",
-    "version": 16
+    "generated": "2026-05-21T10:50:31.590632",
+    "version": 20
   },
   "weeks": [
     {
@@ -40,6 +40,9 @@ window.FMD_DATA = {
     },
     {
       "label": "14 May 2026"
+    },
+    {
+      "label": "15 May 2026"
     }
   ],
   "national_weekly": [
@@ -92,10 +95,10 @@ window.FMD_DATA = {
       2284154
     ],
     [
-      1917,
-      263,
+      2281,
+      267,
       2810830,
-      3064203
+      3419765
     ],
     [
       2014,
@@ -108,6 +111,12 @@ window.FMD_DATA = {
       552,
       2858400,
       2628973
+    ],
+    [
+      2060,
+      486,
+      2810830,
+      2949933
     ]
   ],
   "herd": {
@@ -125,10 +134,10 @@ window.FMD_DATA = {
     {
       "code": "LP",
       "name": "Limpopo",
-      "confirmed": 62,
-      "suspected": 85,
-      "pending": 253,
-      "vaccinated": 260268,
+      "confirmed": 68,
+      "suspected": 77,
+      "pending": 254,
+      "vaccinated": 279559,
       "dosesRx": {
         "bio": 100020,
         "dol": 35000,
@@ -147,9 +156,9 @@ window.FMD_DATA = {
       "code": "FS",
       "name": "Free State",
       "confirmed": 589,
-      "suspected": 363,
+      "suspected": 0,
       "pending": 62,
-      "vaccinated": 510194,
+      "vaccinated": 513167,
       "dosesRx": {
         "bio": 370000,
         "dol": 466100,
@@ -167,10 +176,10 @@ window.FMD_DATA = {
     {
       "code": "EC",
       "name": "Eastern Cape",
-      "confirmed": 282,
-      "suspected": 219,
+      "confirmed": 295,
+      "suspected": 221,
       "pending": 14,
-      "vaccinated": 470078,
+      "vaccinated": 489979,
       "dosesRx": {
         "bio": 0,
         "dol": 0,
@@ -293,10 +302,10 @@ window.FMD_DATA = {
     {
       "code": "WC",
       "name": "Western Cape",
-      "confirmed": 22,
-      "suspected": 4,
+      "confirmed": 26,
+      "suspected": 0,
       "pending": 0,
-      "vaccinated": 210613,
+      "vaccinated": 231913,
       "dosesRx": {
         "bio": 99740,
         "dol": 200000,
@@ -316,9 +325,9 @@ window.FMD_DATA = {
     "LP": [
       {
         "name": "Capricorn",
-        "confirmed": 15,
-        "suspected": 16,
-        "vaccinated": 46180,
+        "confirmed": 19,
+        "suspected": 10,
+        "vaccinated": 49370,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -326,14 +335,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 46180,
+        "dosesAdm": 49370,
         "spoilage": 0
       },
       {
         "name": "Mopani",
         "confirmed": 2,
         "suspected": 2,
-        "vaccinated": 33615,
+        "vaccinated": 35648,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -341,14 +350,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 33615,
+        "dosesAdm": 35648,
         "spoilage": 0
       },
       {
         "name": "Sekhukhune",
         "confirmed": 8,
-        "suspected": 11,
-        "vaccinated": 24861,
+        "suspected": 12,
+        "vaccinated": 29481,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -356,14 +365,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 24861,
+        "dosesAdm": 29481,
         "spoilage": 0
       },
       {
         "name": "Vhembe",
         "confirmed": 14,
-        "suspected": 29,
-        "vaccinated": 46539,
+        "suspected": 28,
+        "vaccinated": 51214,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -371,14 +380,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 46539,
+        "dosesAdm": 51214,
         "spoilage": 0
       },
       {
         "name": "Waterberg",
-        "confirmed": 23,
-        "suspected": 26,
-        "vaccinated": 109073,
+        "confirmed": 25,
+        "suspected": 25,
+        "vaccinated": 113846,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -386,14 +395,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 109073,
+        "dosesAdm": 113846,
         "spoilage": 0
       }
     ],
     "FS": [
       {
         "name": "Fezile Dabi",
-        "confirmed": 256,
+        "confirmed": 339,
         "suspected": 0,
         "vaccinated": 0,
         "herd": 680000,
@@ -408,7 +417,7 @@ window.FMD_DATA = {
       },
       {
         "name": "Lejweleputswa",
-        "confirmed": 41,
+        "confirmed": 59,
         "suspected": 0,
         "vaccinated": 0,
         "herd": 580000,
@@ -423,7 +432,7 @@ window.FMD_DATA = {
       },
       {
         "name": "Thabo Mofutsanyana",
-        "confirmed": 158,
+        "confirmed": 172,
         "suspected": 0,
         "vaccinated": 0,
         "herd": 720000,
@@ -472,7 +481,7 @@ window.FMD_DATA = {
         "name": "Alfred Nzo",
         "confirmed": 46,
         "suspected": 30,
-        "vaccinated": 97400,
+        "vaccinated": 88158,
         "herd": 340000,
         "dosesRx": {
           "bio": 0,
@@ -480,14 +489,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 97400,
+        "dosesAdm": 88158,
         "spoilage": 0
       },
       {
         "name": "Amathole",
-        "confirmed": 137,
+        "confirmed": 148,
         "suspected": 96,
-        "vaccinated": 84470,
+        "vaccinated": 91231,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -495,7 +504,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 84470,
+        "dosesAdm": 91231,
         "spoilage": 0
       },
       {
@@ -515,9 +524,9 @@ window.FMD_DATA = {
       },
       {
         "name": "Joe Gqabi",
-        "confirmed": 43,
+        "confirmed": 45,
         "suspected": 6,
-        "vaccinated": 30277,
+        "vaccinated": 31343,
         "herd": 480000,
         "dosesRx": {
           "bio": 0,
@@ -525,14 +534,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 30277,
+        "dosesAdm": 31343,
         "spoilage": 0
       },
       {
         "name": "OR Tambo",
         "confirmed": 13,
-        "suspected": 70,
-        "vaccinated": 30152,
+        "suspected": 72,
+        "vaccinated": 46086,
         "herd": 280000,
         "dosesRx": {
           "bio": 0,
@@ -540,14 +549,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 30152,
+        "dosesAdm": 46086,
         "spoilage": 0
       },
       {
         "name": "Sarah Baartman",
-        "confirmed": 5,
+        "confirmed": 4,
         "suspected": 1,
-        "vaccinated": 5077,
+        "vaccinated": 5200,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -555,12 +564,27 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 5077,
+        "dosesAdm": 5200,
+        "spoilage": 0
+      },
+      {
+        "name": "MPO",
+        "confirmed": 0,
+        "suspected": 0,
+        "vaccinated": 167370,
+        "herd": 0,
+        "dosesRx": {
+          "bio": 0,
+          "dol": 0,
+          "obp": 0,
+          "bvi": 0
+        },
+        "dosesAdm": 167370,
         "spoilage": 0
       },
       {
         "name": "Nelson Mandela Bay Metropolitan",
-        "confirmed": 0,
+        "confirmed": 1,
         "suspected": 0,
         "vaccinated": 0,
         "herd": 0,
@@ -579,7 +603,7 @@ window.FMD_DATA = {
         "name": "Cape Winelands",
         "confirmed": 5,
         "suspected": 0,
-        "vaccinated": 25019,
+        "vaccinated": 29594,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -587,7 +611,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 25019,
+        "dosesAdm": 29594,
         "spoilage": 0
       },
       {
@@ -609,7 +633,7 @@ window.FMD_DATA = {
         "name": "City of Cape Town",
         "confirmed": 8,
         "suspected": 0,
-        "vaccinated": 34334,
+        "vaccinated": 35143,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -617,14 +641,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 34334,
+        "dosesAdm": 35143,
         "spoilage": 0
       },
       {
         "name": "Garden Route",
         "confirmed": 10,
         "suspected": 0,
-        "vaccinated": 63710,
+        "vaccinated": 76318,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -632,14 +656,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 63710,
+        "dosesAdm": 76318,
         "spoilage": 0
       },
       {
         "name": "Overberg",
         "confirmed": 0,
         "suspected": 0,
-        "vaccinated": 6656,
+        "vaccinated": 24224,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -647,14 +671,14 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 6656,
+        "dosesAdm": 24224,
         "spoilage": 0
       },
       {
         "name": "West Coast",
         "confirmed": 3,
         "suspected": 0,
-        "vaccinated": 65632,
+        "vaccinated": 66622,
         "herd": 0,
         "dosesRx": {
           "bio": 0,
@@ -662,7 +686,7 @@ window.FMD_DATA = {
           "obp": 0,
           "bvi": 0
         },
-        "dosesAdm": 65632,
+        "dosesAdm": 66622,
         "spoilage": 0
       }
     ]
@@ -679,7 +703,8 @@ window.FMD_DATA = {
       40,
       61,
       72,
-      62
+      68,
+      0
     ],
     "FS": [
       316,
@@ -692,7 +717,8 @@ window.FMD_DATA = {
       433,
       473,
       559,
-      589
+      589,
+      588
     ],
     "EC": [
       35,
@@ -705,7 +731,8 @@ window.FMD_DATA = {
       166,
       503,
       282,
-      282
+      295,
+      0
     ],
     "KZN": [
       222,
@@ -718,7 +745,8 @@ window.FMD_DATA = {
       69,
       142,
       333,
-      333
+      333,
+      0
     ],
     "MP": [
       105,
@@ -731,7 +759,8 @@ window.FMD_DATA = {
       203,
       61,
       190,
-      190
+      190,
+      0
     ],
     "NW": [
       161,
@@ -744,7 +773,8 @@ window.FMD_DATA = {
       286,
       24,
       304,
-      304
+      304,
+      0
     ],
     "GP": [
       215,
@@ -757,7 +787,8 @@ window.FMD_DATA = {
       262,
       293,
       272,
-      272
+      272,
+      0
     ],
     "NC": [
       2,
@@ -770,7 +801,8 @@ window.FMD_DATA = {
       2,
       3,
       7,
-      7
+      7,
+      0
     ],
     "WC": [
       10,
@@ -783,7 +815,8 @@ window.FMD_DATA = {
       13,
       26,
       21,
-      22
+      26,
+      0
     ]
   },
   "vaccines": {
@@ -848,24 +881,24 @@ window.FMD_DATA = {
       "name": "Limpopo",
       "minAlloc": 151720,
       "jocRx": 431680,
-      "minVax": 260268,
-      "jocVax": 260268
+      "minVax": 279559,
+      "jocVax": 279559
     },
     {
       "code": "FS",
       "name": "Free State",
       "minAlloc": 547300,
       "jocRx": 837912,
-      "minVax": 510194,
-      "jocVax": 510194
+      "minVax": 513167,
+      "jocVax": 513167
     },
     {
       "code": "EC",
       "name": "Eastern Cape",
       "minAlloc": 440000,
       "jocRx": 615206,
-      "minVax": 470078,
-      "jocVax": 470078
+      "minVax": 322609,
+      "jocVax": 322609
     },
     {
       "code": "KZN",
@@ -912,8 +945,8 @@ window.FMD_DATA = {
       "name": "Western Cape",
       "minAlloc": 330140,
       "jocRx": 330340,
-      "minVax": 210613,
-      "jocVax": 210613
+      "minVax": 231913,
+      "jocVax": 231913
     }
   ],
   "concerns": [
@@ -1027,6 +1060,20 @@ window.FMD_DATA = {
     ]
   },
   "sources": [
+    {
+      "name": "Reporting of cases & vaccines - 07.05.2026.xlsx",
+      "type": "XLSX",
+      "effective": "7 May 2026",
+      "ingested": "20 May 2026",
+      "status": "ingested"
+    },
+    {
+      "name": "FS FMD Vaccine Data - 15.05.2026.xlsx",
+      "type": "XLSX",
+      "effective": "15 May 2026",
+      "ingested": "19 May 2026",
+      "status": "ingested"
+    },
     {
       "name": "Reporting of cases & vaccines - 07.05.2026.xlsx",
       "type": "XLSX",
@@ -1399,6 +1446,64 @@ window.FMD_DATA = {
       "effective": "7 May 2026",
       "ingested": "15 May 2026",
       "status": "reviewed — policy content only, no new data applied"
+    },
+    {
+      "name": "EC AgriSA Reporting of Cases and Vaccines — 14 May 2026",
+      "type": "AgriSA provincial tracking spreadsheet",
+      "effective": "14 May 2026",
+      "ingested": "21 May 2026",
+      "status": "ingested"
+    },
+    {
+      "name": "Free State DARDEA Media Release — 15 May 2026",
+      "type": "Provincial media release",
+      "effective": "15 May 2026",
+      "ingested": "21 May 2026",
+      "status": "ingested",
+      "notes": "589 confirmed outbreaks (unchanged); vaccinated updated to 513,167."
+    },
+    {
+      "name": "Limpopo FMD vaccination pivot tables — 18 May 2026",
+      "type": "Provincial WhatsApp data (vaccination pivot by district)",
+      "effective": "18 May 2026",
+      "ingested": "21 May 2026",
+      "status": "ingested"
+    },
+    {
+      "name": "Limpopo FMD district cases by status — 18 May 2026",
+      "type": "Provincial WhatsApp data (cases by district)",
+      "effective": "18 May 2026",
+      "ingested": "21 May 2026",
+      "status": "ingested"
+    },
+    {
+      "name": "Western Cape ArcGIS FMD Dashboard — 20 May 2026 (data as at 19 May)",
+      "type": "Provincial ArcGIS dashboard (screenshot)",
+      "effective": "19 May 2026",
+      "ingested": "21 May 2026",
+      "status": "ingested"
+    },
+    {
+      "name": "Mpumalanga FMD Update Presentation — 17 May 2026",
+      "type": "Provincial FMD presentation (PPTX)",
+      "effective": "17 May 2026",
+      "ingested": "21 May 2026",
+      "status": "reviewed — data tables image-only, not extractable; provincial total not applied"
+    },
+    {
+      "name": "North West RPO JIC FMD Update — 19 May 2026",
+      "type": "RPO JIC FMD update (PDF)",
+      "effective": "19 May 2026",
+      "ingested": "21 May 2026",
+      "status": "reviewed — vaccine usage data noted; confirmed total not stated, not applied",
+      "notes": "19 new cases reported in week of 11-15 May. Total allocation 176,000; 171,561 used (98%)."
+    },
+    {
+      "name": "Gauteng JOC FMD Outbreak Minutes — 8 May 2026",
+      "type": "Provincial JOC meeting minutes",
+      "effective": "8 May 2026",
+      "ingested": "21 May 2026",
+      "status": "reviewed — procedural content only, no data applied"
     }
   ]
 };
