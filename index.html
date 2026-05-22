@@ -105,6 +105,17 @@
     .alert-dot { width: 8px; height: 8px; background: var(--lime); border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
 
+    .icc-banner {
+      background: var(--pine); color: var(--white);
+      padding: 11px 56px; display: flex; align-items: center; justify-content: center; gap: 16px;
+      font-size: 14px; border-bottom: 2px solid var(--lime);
+    }
+    .icc-banner a {
+      color: var(--lime); font-weight: 700; text-decoration: none; letter-spacing: .01em;
+    }
+    .icc-banner a:hover { text-decoration: underline; }
+    .icc-banner-label { opacity: .85; }
+
     /* ── Sections ────────────────────────────────────────────────────── */
     .section { display: none; padding: 48px 0 72px; }
     .section.active { display: block; }
@@ -258,6 +269,11 @@
     </div>
   </div>
 </header>
+
+<div class="icc-banner">
+  <span class="icc-banner-label">FMD Industry Coordination Council (ICC) vaccination and situation reports are available online.</span>
+  <a href="https://fmd-icc.netlify.app/#vaccination" target="_blank" rel="noopener">Click here for more information from the ICC &rarr;</a>
+</div>
 
 <div class="alert-banner">
   <div class="alert-dot"></div>
