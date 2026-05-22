@@ -317,10 +317,12 @@
     <div class="grid-kpi mb-32">
       <div class="kpi-card"><div class="kpi-label">Confirmed positive cases</div><div class="kpi-value" id="kpi-confirmed">-</div><div class="kpi-delta" id="kpi-confirmed-delta"></div></div>
       <div class="kpi-card"><div class="kpi-label">Suspected cases</div><div class="kpi-value" id="kpi-suspected">-</div><div class="kpi-delta" id="kpi-suspected-delta"></div></div>
-      <div class="kpi-card"><div class="kpi-label">Doses received nationally</div><div class="kpi-value" id="kpi-doses-rx">-</div><div class="kpi-delta" id="kpi-doses-rx-delta"></div></div>
-      <div class="kpi-card"><div class="kpi-label">Animals vaccinated</div><div class="kpi-value" id="kpi-vaccinated">-</div><div class="kpi-delta" id="kpi-vaccinated-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Pending cases</div><div class="kpi-value" id="kpi-pending">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total vaccines received nationally</div><div class="kpi-value" id="kpi-total-rx">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Doses distributed to the provinces</div><div class="kpi-value" id="kpi-doses-rx">-</div><div class="kpi-delta" id="kpi-doses-rx-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Doses administered in the provinces</div><div class="kpi-value" id="kpi-vaccinated">-</div><div class="kpi-delta" id="kpi-vaccinated-delta"></div></div>
       <div class="kpi-card"><div class="kpi-label">National herd coverage</div><div class="kpi-value" id="kpi-coverage">-</div><div class="kpi-delta" id="kpi-coverage-delta"></div></div>
-      <div class="kpi-card"><div class="kpi-label">Vaccine stock balance</div><div class="kpi-value" id="kpi-balance">-</div><div class="kpi-delta" id="kpi-balance-delta"></div></div>
+      <div class="kpi-card"><div class="kpi-label">Dose balance not yet administered in the provinces</div><div class="kpi-value" id="kpi-balance">-</div><div class="kpi-delta" id="kpi-balance-delta"></div></div>
     </div>
 
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;" class="mb-16">
@@ -868,19 +870,32 @@ function showSection(name, btn) {
 function renderOverview() {
   const w=currentWeek, wP=Math.max(0,w-1);
   const nat=DATA.national_weekly[w], natP=DATA.national_weekly[wP];
-  const totalHerd=Object.values(DATA.herd).reduce((a,b)=>a+b,0);
-  const scale=w/(DATA.weeks.length-1);
+  const isLatestWeek = currentWeek === DATA.weeks.length - 1;
+  const n=DATA.national||{};
 
-  document.getElementById('kpi-confirmed').textContent     = fmt(nat[0]);
-  document.getElementById('kpi-confirmed-delta').innerHTML = w>0?delta(nat[0],natP[0]):'';
-  document.getElementById('kpi-suspected').textContent     = fmt(nat[1]);
-  document.getElementById('kpi-suspected-delta').innerHTML = w>0?delta(nat[1],natP[1]):'';
-  document.getElementById('kpi-doses-rx').textContent      = fmt(nat[2]);
-  document.getElementById('kpi-doses-rx-delta').innerHTML  = w>0?delta(nat[2],natP[2]):'';
-  document.getElementById('kpi-vaccinated').textContent    = fmt(nat[3]);
-  document.getElementById('kpi-vaccinated-delta').innerHTML= w>0?delta(nat[3],natP[3]):'';
-  document.getElementById('kpi-coverage').textContent      = ((nat[3]/totalHerd)*100).toFixed(1)+'%';
-  document.getElementById('kpi-balance').textContent       = fmt(nat[2]-nat[3]);
+  /* For the latest week use the authoritative national block; fall back to time-series for history */
+  const confirmed   = isLatestWeek && n.confirmed   != null ? n.confirmed   : nat[0];
+  const suspected   = isLatestWeek && n.suspected   != null ? n.suspected   : nat[1];
+  const pending     = isLatestWeek && n.pending     != null ? n.pending     : 0;
+  const totalRx     = isLatestWeek && n.totalReceived!= null? n.totalReceived: null;
+  const distributed = isLatestWeek && n.distributed != null ? n.distributed : nat[2];
+  const administered= isLatestWeek && n.administered!= null ? n.administered : nat[3];
+  const balance     = isLatestWeek && n.balance     != null ? n.balance     : distributed - administered;
+  const coveragePct = isLatestWeek && n.coveragePct != null ? n.coveragePct : ((administered / Object.values(DATA.herd).reduce((a,b)=>a+b,0))*100);
+
+  document.getElementById('kpi-confirmed').textContent     = fmt(confirmed);
+  document.getElementById('kpi-confirmed-delta').innerHTML = w>0?delta(confirmed,natP[0]):'';
+  document.getElementById('kpi-suspected').textContent     = fmt(suspected);
+  document.getElementById('kpi-suspected-delta').innerHTML = w>0?delta(suspected,natP[1]):'';
+  document.getElementById('kpi-pending').textContent       = fmt(pending);
+  if(document.getElementById('kpi-total-rx'))
+    document.getElementById('kpi-total-rx').textContent    = totalRx!=null?fmt(totalRx):'-';
+  document.getElementById('kpi-doses-rx').textContent      = fmt(distributed);
+  document.getElementById('kpi-doses-rx-delta').innerHTML  = w>0?delta(distributed,natP[2]):'';
+  document.getElementById('kpi-vaccinated').textContent    = fmt(administered);
+  document.getElementById('kpi-vaccinated-delta').innerHTML= w>0?delta(administered,natP[3]):'';
+  document.getElementById('kpi-coverage').textContent      = Number(coveragePct).toFixed(1)+'%';
+  document.getElementById('kpi-balance').textContent       = fmt(balance);
 
   /* Province grid */
   const grid=document.getElementById('province-grid'); grid.innerHTML='';

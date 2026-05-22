@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-22T12:11:30.438523
-// Version:   26
+// Generated: 2026-05-22T13:52:03.126662
+// Version:   27
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-22T12:11:30.438523",
-    "version": 26
+    "generated": "2026-05-22T13:52:03.126662",
+    "version": 27
   },
   "weeks": [
     {
@@ -1704,5 +1704,17 @@ window.FMD_DATA = {
       }
     ],
     "notes": "Private feedlot channel only. One line item of 3 000 doses had no province attribution and is excluded from the provincial totals. All orders fulfilled by OBP. Source: RMIS Vaccine Orders Export 6 May 2026."
+  },
+  "national": {
+    "effectiveDate": "2026-05-21",
+    "confirmed": 1900,
+    "suspected": 855,
+    "pending": 237,
+    "totalReceived": 6000000,
+    "distributed": 5361509,
+    "administered": 2920528,
+    "balance": 2440981,
+    "coveragePct": 23.4,
+    "notes": "confirmed=1900 verified against province sum. suspected=855 user-authoritative (province sum=862; delta=7, likely MP or WC stale). pending=237 is LP only; FS=62 and EC=14 retained in province data. totalReceived=6 000 000 from Minister media brief. distributed=5 361 509 from prov_compare jocRx sum. administered=2 920 528 from province vaccinated sum. balance=2 440 981 = distributed − administered (verified). coveragePct=23.4% = 2 920 528 ÷ 12 496 199 national herd."
   }
 };
