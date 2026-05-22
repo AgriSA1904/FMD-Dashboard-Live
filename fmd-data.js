@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-22T13:52:03.126662
-// Version:   27
+// Generated: 2026-05-22T13:54:36.158146
+// Version:   28
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-22T13:52:03.126662",
-    "version": 27
+    "generated": "2026-05-22T13:54:36.158146",
+    "version": 28
   },
   "weeks": [
     {
@@ -157,7 +157,6 @@ window.FMD_DATA = {
       "name": "Free State",
       "confirmed": 589,
       "suspected": 363,
-      "pending": 62,
       "vaccinated": 513167,
       "dosesRx": {
         "bio": 370000,
@@ -178,7 +177,6 @@ window.FMD_DATA = {
       "name": "Eastern Cape",
       "confirmed": 295,
       "suspected": 221,
-      "pending": 14,
       "vaccinated": 489979,
       "dosesRx": {
         "bio": 300899,
