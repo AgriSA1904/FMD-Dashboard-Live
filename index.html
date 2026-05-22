@@ -287,7 +287,7 @@
     <button class="nav-btn" onclick="showSection('ministerial',this)">Minister vs. JOC</button>
     <button class="nav-btn" onclick="showSection('concerns',this)">Areas of concern</button>
     <button class="nav-btn" onclick="showSection('mpo',this)">MPO and dairy</button>
-    <button class="nav-btn" onclick="showSection('sources',this)">Sources</button>
+    <button class="nav-btn" onclick="showSection('rmis',this)">RMIS feedlot</button>
   </div>
 </nav>
 
@@ -567,21 +567,46 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════ -->
-<!-- SECTION: Sources                                                      -->
+<!-- SECTION: RMIS / Feedlot                                               -->
 <!-- ════════════════════════════════════════════════════════════════════ -->
-<div id="section-sources" class="section">
+<div id="section-rmis" class="section">
   <div class="container">
-    <span class="kicker">Data ingestion log</span>
-    <h2 class="section-title">Sources and methodology.</h2>
-    <p class="section-sub">All source documents received, processed and archived. We record the effective date (when information is valid) and the ingestion date (when it was processed). The dashboard updates automatically each morning at 08:00 from the provincial inbox.</p>
-    <div class="card">
-      <div class="card-kicker">Current week sources</div>
-      <div class="card-title">Source documents processed.</div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>Document</th><th>Type</th><th>Effective date</th><th>Ingested</th><th>Status</th></tr></thead>
-          <tbody id="sources-body"></tbody>
-        </table>
+    <span class="kicker">Red Meat Industry Service</span>
+    <h2 class="section-title">Feedlot vaccine orders.</h2>
+    <p class="section-sub">Vaccine orders placed through the RMIS feedlot supply chain. Data as at 6 May 2026. All orders are for Dollvet Biotech Trivalent supplied by Onderstepoort Biological Products (OBP).</p>
+
+    <div class="grid-kpi mb-32">
+      <div class="kpi-card"><div class="kpi-label">Total doses ordered</div><div class="kpi-value" id="rmis-total-doses">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total orders</div><div class="kpi-value" id="rmis-total-orders">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Provinces with orders</div><div class="kpi-value" id="rmis-provinces">-</div></div>
+      <div class="kpi-card"><div class="kpi-label">Vaccine</div><div class="kpi-value" id="rmis-vaccine-type" style="font-size:16px;line-height:1.3;">-</div></div>
+    </div>
+
+    <div class="grid-2 mb-32">
+      <div class="card">
+        <div class="card-kicker">Provincial breakdown</div>
+        <div class="card-title">Feedlot vaccine orders by province.</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Province</th><th style="text-align:right;">Orders</th><th style="text-align:right;">Doses ordered</th></tr></thead>
+            <tbody id="rmis-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-kicker">Distribution</div>
+        <div class="card-title">Doses ordered by province.</div>
+        <canvas id="chart-rmis-prov" height="260"></canvas>
+      </div>
+    </div>
+
+    <div class="concern-card">
+      <div class="concern-header info">
+        <span class="concern-badge info">RMIS note</span>
+        <span class="concern-header-label">Data represents the private feedlot channel only.</span>
+      </div>
+      <div class="concern-body">
+        <div class="concern-text">RMIS tracks vaccine orders placed by registered feedlot operators and private veterinary practices through the Red Meat Industry Service platform. These figures reflect the private channel only and are separate from state veterinary allocations reported in the provincial JOC data. One line item of 3 000 doses had no province attribution and is excluded from the provincial breakdown.</div>
       </div>
     </div>
   </div>
@@ -750,6 +775,23 @@ const SAMPLE_DATA = {
     { name:'ICC Report Week 9',                          type:'PDF',   effective:'8 May 2026',  ingested:'9 May 2026',  status:'ingested' },
     { name:'Gauteng WhatsApp Update',                    type:'Image', effective:'6 May 2026',  ingested:'6 May 2026',  status:'partial'  },
   ],
+  rmis: {
+    effectiveDate: '2026-05-06',
+    vaccineType: 'Dollvet Biotech Trivalent',
+    supplier: 'Onderstepoort Biological Products (OBP)',
+    totalDoses: 3000,
+    totalOrders: 40,
+    provinces: [
+      { code:'GP',  name:'Gauteng',        orders:4,  doses:1059 },
+      { code:'FS',  name:'Free State',     orders:13, doses:870  },
+      { code:'MP',  name:'Mpumalanga',     orders:6,  doses:519  },
+      { code:'NW',  name:'North West',     orders:3,  doses:278  },
+      { code:'LP',  name:'Limpopo',        orders:10, doses:171  },
+      { code:'KZN', name:'KwaZulu-Natal',  orders:2,  doses:64   },
+      { code:'EC',  name:'Eastern Cape',   orders:1,  doses:20   },
+      { code:'NC',  name:'Northern Cape',  orders:1,  doses:19   },
+    ],
+  },
 };
 const DATA = (window.FMD_DATA || SAMPLE_DATA);
 
@@ -776,7 +818,7 @@ const MFR_COLORS = { bio:PINE, dol:OLIVE, obp:SAGE, bvi:GRASS };
 let currentWeek = DATA.weeks.length - 1;
 let chartCases, chartVax, chartChannel, chartMfr, chartSpecies, chartTenure,
     chartVaxAdm, chartAllocProv, chartVaccProv,
-    chartMpoProv, chartMpoFarms, chartProvTrend, chartProvSupply;
+    chartMpoProv, chartMpoFarms, chartProvTrend, chartProvSupply, chartRmisProv;
 
 function mkScales(yFmt) {
   return {
@@ -1158,12 +1200,40 @@ function renderMpo() {
   </tr>`;
 }
 
-/* ── Sources ─────────────────────────────────────────────────────────── */
-function renderSources() {
-  const tb=document.getElementById('sources-body'); tb.innerHTML='';
-  DATA.sources.forEach(s=>{
-    const sp=s.status==='ingested'?'<span class="pill green">Ingested</span>':'<span class="pill amber">Partial</span>';
-    tb.innerHTML+=`<tr><td>${s.name}</td><td><span class="pill">${s.type}</span></td><td>${s.effective}</td><td>${s.ingested}</td><td>${sp}</td></tr>`;
+/* ── RMIS ────────────────────────────────────────────────────────────── */
+function renderRmis() {
+  const r=DATA.rmis; if(!r) return;
+  document.getElementById('rmis-total-doses').textContent=fmt(r.totalDoses);
+  document.getElementById('rmis-total-orders').textContent=fmt(r.totalOrders);
+  document.getElementById('rmis-provinces').textContent=r.provinces.length;
+  document.getElementById('rmis-vaccine-type').textContent=r.vaccineType||'-';
+  const tb=document.getElementById('rmis-table-body'); tb.innerHTML='';
+  let tD=0,tO=0;
+  r.provinces.forEach(p=>{
+    tD+=p.doses; tO+=p.orders;
+    tb.innerHTML+=`<tr><td>${p.name}</td><td style="text-align:right;">${fmt(p.orders)}</td><td style="text-align:right;">${fmt(p.doses)}</td></tr>`;
+  });
+  tb.innerHTML+=`<tr class="total-row"><td>Total</td><td style="text-align:right;">${fmt(tO)}</td><td style="text-align:right;">${fmt(tD)}</td></tr>`;
+  if(chartRmisProv){chartRmisProv.destroy();chartRmisProv=null;}
+  chartRmisProv=new Chart(document.getElementById('chart-rmis-prov'),{
+    type:'bar',
+    data:{
+      labels:r.provinces.map(p=>p.name),
+      datasets:[{
+        label:'Doses ordered',
+        data:r.provinces.map(p=>p.doses),
+        backgroundColor:'rgba(16,45,45,0.75)',
+        borderRadius:4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:11}}},
+        y:{beginAtZero:true,ticks:{font:{size:11}}}
+      }
+    }
   });
 }
 
@@ -1310,7 +1380,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderMinisterial();
   renderConcerns();
   renderMpo();
-  renderSources();
+  renderRmis();
 });
 </script>
 </body>

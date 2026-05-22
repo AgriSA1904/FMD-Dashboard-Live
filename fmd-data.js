@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-22T11:33:44.977693
-// Version:   25
+// Generated: 2026-05-22T12:11:30.438523
+// Version:   26
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-22T11:33:44.977693",
-    "version": 25
+    "generated": "2026-05-22T12:11:30.438523",
+    "version": 26
   },
   "weeks": [
     {
@@ -1637,6 +1637,72 @@ window.FMD_DATA = {
       "ingested": "2026-05-21",
       "status": "ingested",
       "notes": "Authoritative weekly consolidation across EC-DRDAR, FS-JOC, GP-GDARD, LP-LDARD (20 May), MP-DVS (17 May), NW-RPO (19 May), WC-GIS (19 May). KZN and NC carry-forward from AgriSA-NAT 1 May — provincial submissions outstanding."
+    },
+    {
+      "name": "RMIS Feedlot Vaccine Orders Export — 6 May 2026",
+      "type": "RMIS export (XLSX)",
+      "effective": "2026-05-06",
+      "ingested": "2026-05-22",
+      "status": "ingested",
+      "notes": "40 orders (excl. 1 unattributed). 3 000 doses Dollvet Biotech Trivalent via OBP. Private feedlot channel only. Provincial breakdown: GP=1059, FS=870, MP=519, NW=278, LP=171, KZN=64, EC=20, NC=19."
     }
-  ]
+  ],
+  "rmis": {
+    "effectiveDate": "2026-05-06",
+    "vaccineType": "Dollvet Biotech Trivalent",
+    "supplier": "Onderstepoort Biological Products (OBP)",
+    "totalDoses": 3000,
+    "totalOrders": 40,
+    "provinces": [
+      {
+        "code": "GP",
+        "name": "Gauteng",
+        "orders": 4,
+        "doses": 1059
+      },
+      {
+        "code": "FS",
+        "name": "Free State",
+        "orders": 13,
+        "doses": 870
+      },
+      {
+        "code": "MP",
+        "name": "Mpumalanga",
+        "orders": 6,
+        "doses": 519
+      },
+      {
+        "code": "NW",
+        "name": "North West",
+        "orders": 3,
+        "doses": 278
+      },
+      {
+        "code": "LP",
+        "name": "Limpopo",
+        "orders": 10,
+        "doses": 171
+      },
+      {
+        "code": "KZN",
+        "name": "KwaZulu-Natal",
+        "orders": 2,
+        "doses": 64
+      },
+      {
+        "code": "EC",
+        "name": "Eastern Cape",
+        "orders": 1,
+        "doses": 20
+      },
+      {
+        "code": "NC",
+        "name": "Northern Cape",
+        "orders": 1,
+        "doses": 19
+      }
+    ],
+    "notes": "Private feedlot channel only. One line item of 3 000 doses had no province attribution and is excluded from the provincial totals. All orders fulfilled by OBP. Source: RMIS Vaccine Orders Export 6 May 2026."
+  }
 };
