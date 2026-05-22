@@ -298,7 +298,7 @@
   <div class="nav-inner">
     <button class="nav-btn active" onclick="showSection('overview',this)">National overview</button>
     <button class="nav-btn" onclick="showSection('vaccines',this)">Vaccine tracking</button>
-    <button class="nav-btn" onclick="showSection('ministerial',this)">Minister vs. JOC</button>
+    <button class="nav-btn" onclick="showSection('ministerial',this)">Minister vs. Provinces</button>
     <button class="nav-btn" onclick="showSection('concerns',this)">Areas of concern</button>
     <button class="nav-btn" onclick="showSection('mpo',this)">MPO and dairy</button>
     <button class="nav-btn" onclick="showSection('rmis',this)">RMIS feedlot</button>
@@ -444,72 +444,39 @@
 <div id="section-ministerial" class="section">
   <div class="container">
     <span class="kicker">Data reconciliation</span>
-    <h2 class="section-title">Minister vs. provincial JOC.</h2>
-    <p class="section-sub">We compare figures from official ministerial briefings with data reported through provincial Joint Operations Committee engagements. Discrepancies are noted and tracked. Where gaps exist, we raise the concern for formal clarification.</p>
-
-    <div class="concern-card mb-32">
-      <div class="concern-header critical">
-        <span class="concern-badge critical">Data reconciliation note</span>
-        <span class="concern-header-label">A significant gap exists between nationally reported procurement figures and provincial receipt data.</span>
-      </div>
-      <div class="concern-body">
-        <div class="concern-text">A total of 6 000 000 doses have been reported as procured nationally. Provincial Joint Operations Committee returns account for 3 472 758 doses received at provincial level, a gap of 2 527 242 doses. A formal reconciliation of these figures has not yet been made available. We raise this concern in the interest of transparency and accurate programme reporting.</div>
-      </div>
-    </div>
+    <h2 class="section-title">Minister vs. provinces.</h2>
+    <p class="section-sub">We compare figures from official ministerial briefings with consolidated provincial data from the AgriCulture South Africa master template. The ministerial figures are as stated in the 7 May 2026 media briefing. Provincial figures are as at 21 May 2026.</p>
 
     <div class="card mb-24">
-      <div class="card-kicker">Headline figures</div>
-      <div class="card-title">Ministerial briefing vs. JOC aggregate — key metrics.</div>
+      <div class="card-kicker">National comparison</div>
+      <div class="card-title">Ministerial briefing vs. provincial consolidated — key metrics.</div>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr><th>Metric</th><th>Ministerial figure</th><th>JOC aggregate</th><th>Difference</th><th>Status</th></tr></thead>
+          <thead><tr><th>Metric</th><th>Ministerial figure<br><span style="font-weight:400;font-size:11px;">As at 7 May 2026</span></th><th>Provincial consolidated<br><span style="font-weight:400;font-size:11px;">As at 21 May 2026</span></th><th>Difference</th><th>Status</th></tr></thead>
           <tbody id="compare-body"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Sub-section 1: Vaccine Allocation -->
+    <!-- Provincial breakdown -->
     <div class="sub-section">
-      <span class="kicker">Vaccine procurement and distribution</span>
-      <div class="sub-section-title">Doses allocated vs. doses received at provincial level.</div>
+      <span class="kicker">Provincial detail — master template v2 (21 May 2026)</span>
+      <div class="sub-section-title">Doses distributed and administered by province.</div>
       <div class="grid-2 mb-24">
         <div class="card">
-          <div class="card-kicker">Provincial breakdown</div>
-          <div class="card-title">Ministerial allocation vs. JOC confirmed receipts.</div>
+          <div class="card-kicker">Distribution and administration</div>
+          <div class="card-title">Doses distributed to and administered in each province.</div>
           <div style="overflow-x:auto;">
             <table>
-              <thead><tr><th>Province</th><th>Min. allocation</th><th>JOC confirmed</th><th>Variance</th><th>Status</th></tr></thead>
+              <thead><tr><th>Province</th><th style="text-align:right;">Distributed</th><th style="text-align:right;">Administered</th><th style="text-align:right;">Balance</th></tr></thead>
               <tbody id="alloc-compare-body"></tbody>
             </table>
           </div>
         </div>
         <div class="card">
           <div class="card-kicker">Comparative view</div>
-          <div class="card-title">Allocation vs. confirmed receipts by province.</div>
+          <div class="card-title">Doses distributed vs. administered by province.</div>
           <canvas id="chart-alloc-prov" height="280"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sub-section 2: Animals Vaccinated -->
-    <div class="sub-section">
-      <span class="kicker">Vaccination outcomes</span>
-      <div class="sub-section-title">Animals vaccinated — ministerial vs. JOC reporting.</div>
-      <div class="grid-2 mb-24">
-        <div class="card">
-          <div class="card-kicker">Provincial breakdown</div>
-          <div class="card-title">Ministerial figure vs. JOC confirmed animals vaccinated.</div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Province</th><th>Min. animals vaccinated</th><th>JOC animals vaccinated</th><th>Variance</th><th>Status</th></tr></thead>
-              <tbody id="vacc-compare-body"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-kicker">Comparative view</div>
-          <div class="card-title">Animals vaccinated by province — ministerial vs. JOC.</div>
-          <canvas id="chart-vacc-prov" height="280"></canvas>
         </div>
       </div>
     </div>
@@ -1127,57 +1094,71 @@ function renderVaccines() {
   </tr>`;
 }
 
-/* ── Minister vs JOC ─────────────────────────────────────────────────── */
+/* ── Minister vs Provinces ───────────────────────────────────────────── */
 function renderMinisterial() {
   const min=DATA.ministerial, joc=DATA.joc;
-  /* Headline */
+
+  /* Headline national comparison */
   const rows=[
-    {metric:'Doses procured / received at provincial level',minVal:min.procured,   jocVal:joc.dosesRx,  minDate:min.as_of,jocDate:joc.as_of},
-    {metric:'Doses distributed',                            minVal:min.distributed,jocVal:joc.dosesRx,  minDate:min.as_of,jocDate:joc.as_of},
-    {metric:'Animals vaccinated',                           minVal:min.vaccinated, jocVal:joc.vaccinated,minDate:min.as_of,jocDate:joc.as_of},
+    { metric:'Total vaccines procured nationally', minVal:min.procured,    jocVal:joc.dosesRx   },
+    { metric:'Doses distributed to provinces',     minVal:min.distributed, jocVal:joc.dosesRx   },
+    { metric:'Doses administered in provinces',    minVal:min.vaccinated,  jocVal:joc.vaccinated },
   ];
   const tb=document.getElementById('compare-body'); tb.innerHTML='';
   rows.forEach(r=>{
-    const diff=r.minVal-r.jocVal, gap=Math.abs(diff)/r.minVal>0.05;
-    const pD=((Math.abs(diff)/r.minVal)*100).toFixed(1);
+    const diff=r.jocVal-r.minVal;
+    const pD=r.minVal>0?((Math.abs(diff)/r.minVal)*100).toFixed(1):'0.0';
+    const gap=Math.abs(diff)/r.minVal>0.05;
+    const sign=diff>=0?'+':'';
     tb.innerHTML+=`<tr>
       <td>${r.metric}</td>
-      <td>${fmt(r.minVal)}<br><span class="text-sm text-stone">as at ${r.minDate}</span></td>
-      <td>${fmt(r.jocVal)}<br><span class="text-sm text-stone">as at ${r.jocDate}</span></td>
-      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)} (${pD}%)</td>
+      <td style="text-align:right;">${fmt(r.minVal)}</td>
+      <td style="text-align:right;">${fmt(r.jocVal)}</td>
+      <td class="${gap?'discrepancy':'match'}" style="text-align:right;">${sign}${fmt(diff)} (${pD}%)</td>
       <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
     </tr>`;
   });
 
-  /* Allocation table with total row */
+  /* Provincial distribution and administration breakdown */
   const ab=document.getElementById('alloc-compare-body'); ab.innerHTML='';
-  let tMinA=0, tJocA=0;
+  let tRx=0, tVax=0;
   DATA.prov_compare.forEach(p=>{
-    const diff=p.minAlloc-p.jocRx, gap=p.minAlloc>0&&Math.abs(diff)/p.minAlloc>0.05;
-    tMinA+=p.minAlloc; tJocA+=p.jocRx;
+    const bal=p.jocRx-p.jocVax;
+    tRx+=p.jocRx; tVax+=p.jocVax;
     ab.innerHTML+=`<tr>
-      <td>${p.name}</td><td>${fmt(p.minAlloc)}</td><td>${fmt(p.jocRx)}</td>
-      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)}</td>
-      <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
+      <td>${p.name}</td>
+      <td style="text-align:right;">${fmt(p.jocRx)}</td>
+      <td style="text-align:right;">${fmt(p.jocVax)}</td>
+      <td style="text-align:right;">${fmt(bal)}</td>
     </tr>`;
   });
-  const tDiffA=tMinA-tJocA;
-  ab.innerHTML+=`<tr class="total-row"><td>National total</td><td>${fmt(tMinA)}</td><td>${fmt(tJocA)}</td><td class="discrepancy">${tDiffA>0?'+':''}${fmt(tDiffA)}</td><td></td></tr>`;
+  ab.innerHTML+=`<tr class="total-row">
+    <td>National total</td>
+    <td style="text-align:right;">${fmt(tRx)}</td>
+    <td style="text-align:right;">${fmt(tVax)}</td>
+    <td style="text-align:right;">${fmt(tRx-tVax)}</td>
+  </tr>`;
 
-  /* Animals vaccinated table with total row */
-  const vb=document.getElementById('vacc-compare-body'); vb.innerHTML='';
-  let tMinV=0, tJocV=0;
-  DATA.prov_compare.forEach(p=>{
-    const diff=p.minVax-p.jocVax, gap=p.minVax>0&&Math.abs(diff)/p.minVax>0.05;
-    tMinV+=p.minVax; tJocV+=p.jocVax;
-    vb.innerHTML+=`<tr>
-      <td>${p.name}</td><td>${fmt(p.minVax)}</td><td>${fmt(p.jocVax)}</td>
-      <td class="${gap?'discrepancy':'match'}">${diff>0?'+':''}${fmt(diff)}</td>
-      <td>${gap?'<span class="pill red">Gap noted</span>':'<span class="pill green">Consistent</span>'}</td>
-    </tr>`;
-  });
-  const tDiffV=tMinV-tJocV;
-  vb.innerHTML+=`<tr class="total-row"><td>National total</td><td>${fmt(tMinV)}</td><td>${fmt(tJocV)}</td><td class="discrepancy">${tDiffV>0?'+':''}${fmt(tDiffV)}</td><td></td></tr>`;
+  /* Rebuild chart — distributed vs administered by province */
+  if(window.chartAllocProv){window.chartAllocProv.destroy();}
+  const ctx=document.getElementById('chart-alloc-prov');
+  if(ctx){
+    window.chartAllocProv=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:DATA.prov_compare.map(p=>p.name),
+        datasets:[
+          {label:'Distributed', data:DATA.prov_compare.map(p=>p.jocRx),  backgroundColor:'rgba(16,45,45,0.85)', borderRadius:3},
+          {label:'Administered',data:DATA.prov_compare.map(p=>p.jocVax), backgroundColor:'rgba(203,217,41,0.85)',borderRadius:3},
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+        scales:{x:{ticks:{font:{size:10}}},y:{beginAtZero:true,ticks:{font:{size:11}}}}
+      }
+    });
+  }
 }
 
 /* ── Concerns ────────────────────────────────────────────────────────── */

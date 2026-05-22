@@ -1,11 +1,11 @@
 // FMD Dashboard data — AgriCulture South Africa
-// Generated: 2026-05-22T13:54:36.158146
-// Version:   28
+// Generated: 2026-05-22T15:04:36.261884
+// Version:   29
 // Do not edit manually — run ingest.py to update.
 window.FMD_DATA = {
   "_meta": {
-    "generated": "2026-05-22T13:54:36.158146",
-    "version": 28
+    "generated": "2026-05-22T15:04:36.261884",
+    "version": 29
   },
   "weeks": [
     {
@@ -975,18 +975,18 @@ window.FMD_DATA = {
     "procured": 6000000,
     "distributed": 5229966,
     "vaccinated": 2284154,
-    "as_of": "12 May 2026"
+    "as_of": "7 May 2026"
   },
   "joc": {
-    "dosesRx": 3472758,
-    "vaccinated": 2284154,
-    "as_of": "1 May 2026"
+    "dosesRx": 5361509,
+    "vaccinated": 2920528,
+    "as_of": "21 May 2026"
   },
   "prov_compare": [
     {
       "code": "LP",
       "name": "Limpopo",
-      "minAlloc": 151720,
+      "minAlloc": 334559,
       "jocRx": 334559,
       "minVax": 279559,
       "jocVax": 279559
@@ -994,7 +994,7 @@ window.FMD_DATA = {
     {
       "code": "FS",
       "name": "Free State",
-      "minAlloc": 547300,
+      "minAlloc": 863400,
       "jocRx": 863400,
       "minVax": 513167,
       "jocVax": 513167
@@ -1002,15 +1002,15 @@ window.FMD_DATA = {
     {
       "code": "EC",
       "name": "Eastern Cape",
-      "minAlloc": 440000,
+      "minAlloc": 652349,
       "jocRx": 652349,
-      "minVax": 322609,
-      "jocVax": 322609
+      "minVax": 489979,
+      "jocVax": 489979
     },
     {
       "code": "KZN",
       "name": "KwaZulu-Natal",
-      "minAlloc": 925040,
+      "minAlloc": 1329112,
       "jocRx": 1329112,
       "minVax": 648609,
       "jocVax": 648609
@@ -1018,7 +1018,7 @@ window.FMD_DATA = {
     {
       "code": "MP",
       "name": "Mpumalanga",
-      "minAlloc": 341020,
+      "minAlloc": 565489,
       "jocRx": 565489,
       "minVax": 312886,
       "jocVax": 312886
@@ -1026,7 +1026,7 @@ window.FMD_DATA = {
     {
       "code": "NW",
       "name": "North West",
-      "minAlloc": 359800,
+      "minAlloc": 617720,
       "jocRx": 617720,
       "minVax": 171561,
       "jocVax": 171561
@@ -1034,7 +1034,7 @@ window.FMD_DATA = {
     {
       "code": "GP",
       "name": "Gauteng",
-      "minAlloc": 409800,
+      "minAlloc": 517940,
       "jocRx": 517940,
       "minVax": 244800,
       "jocVax": 244800
@@ -1042,7 +1042,7 @@ window.FMD_DATA = {
     {
       "code": "NC",
       "name": "Northern Cape",
-      "minAlloc": 185640,
+      "minAlloc": 150600,
       "jocRx": 150600,
       "minVax": 28054,
       "jocVax": 28054
@@ -1050,7 +1050,7 @@ window.FMD_DATA = {
     {
       "code": "WC",
       "name": "Western Cape",
-      "minAlloc": 330140,
+      "minAlloc": 330340,
       "jocRx": 330340,
       "minVax": 231913,
       "jocVax": 231913
